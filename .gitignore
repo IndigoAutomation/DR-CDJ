@@ -77,8 +77,6 @@ dist/CDJ-Check.app/
 build/Dr-CDJ/
 build/CDJ-Check/
 *.dmg
-docs/internal
-
 # Keep these
 !assets/
 !CDJ-Check.icns
@@ -86,4 +84,3 @@ docs/internal
 # FFmpeg binaries (downloaded during build)
 src/dr_cdj/bin/
 !src/dr_cdj/bin/.gitkeep
-docs/internal/

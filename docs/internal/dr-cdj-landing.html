@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. CDJ — Audio Compatibility for Mac</title>
+<meta name="description" content="The friendly audio file checker for Pioneer CDJ players. Made for Mac.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#090909;--bg-elevated:#101015;--bg-card:#18181f;
+  --coral:#d94f4f;--turquoise:#33a89f;--sunshine:#c9a820;--lavender:#8b50d4;
+  --mint:#3db88a;--sky:#3080d8;--peach:#c96418;
+  --text:#f0f0f0;--text-dim:#8a8a94;--text-muted:#5a5a64;
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  overflow-x:hidden;min-height:100vh;line-height:1.5;
+}
+.container{
+  position:relative;z-index:1;
+  width:100%;max-width:100%;
+}
+
+/* ===== MESH GRADIENT BACKGROUND ===== */
+.mesh-bg{
+  position:fixed;inset:0;z-index:0;overflow:hidden;
+  background:var(--bg);
+}
+.mesh-blob{
+  position:absolute;border-radius:50%;filter:blur(80px);
+  animation:blobFloat 20s ease-in-out infinite;
+  opacity:0.5;
+}
+.mesh-blob:nth-child(1){
+  width:600px;height:600px;background:var(--coral);
+  top:-200px;left:-100px;animation-delay:0s;opacity:0.22;
+}
+.mesh-blob:nth-child(2){
+  width:500px;height:500px;background:var(--turquoise);
+  top:30%;right:-150px;animation-delay:-5s;opacity:0.18;
+}
+.mesh-blob:nth-child(3){
+  width:400px;height:400px;background:var(--lavender);
+  bottom:-100px;left:30%;animation-delay:-10s;opacity:0.15;
+}
+.mesh-blob:nth-child(4){
+  width:350px;height:350px;background:var(--sunshine);
+  top:60%;left:-100px;animation-delay:-15s;opacity:0.12;
+}
+@keyframes blobFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(50px,-30px) scale(1.1)}
+  50%{transform:translate(-30px,50px) scale(0.95)}
+  75%{transform:translate(40px,30px) scale(1.05)}
+}
+
+/* ===== GLASS NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;
+  transition:all 0.4s var(--ease-smooth);
+}
+nav.scrolled{
+  background:rgba(14,14,18,0.85);
+  backdrop-filter:blur(20px) saturate(180%);
+  padding:0.75rem 2rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:0.75rem;
+  font-weight:700;font-size:1.1rem;letter-spacing:-0.02em;
+}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--coral),var(--peach));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;box-shadow:0 4px 15px rgba(180,60,60,0.35);
+  animation:logoBounce 3s ease-in-out infinite;
+}
+@keyframes logoBounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;font-size:0.85rem;
+  font-weight:500;transition:all 0.3s;padding:0.5rem 0.75rem;
+  border-radius:8px;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.nav-cta{
+  padding:0.6rem 1.25rem;border-radius:12px;
+  background:linear-gradient(135deg,var(--coral),var(--peach));
+  color:#fff;font-size:0.8rem;font-weight:600;border:none;
+  cursor:pointer;transition:all 0.3s var(--ease-spring);
+  box-shadow:0 4px 15px rgba(180,60,60,0.35);
+}
+.nav-cta:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 6px 20px rgba(180,60,60,0.5)}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  padding:8rem 1.5rem 5rem;position:relative;z-index:1;
+}
+
+/* Floating badges */
+.float-badge{
+  position:absolute;padding:0.5rem 1rem;border-radius:999px;
+  font-size:0.75rem;font-weight:600;backdrop-filter:blur(10px);
+  animation:floatBadge 6s ease-in-out infinite;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+}
+.float-badge:nth-child(1){
+  background:rgba(180,55,55,0.15);color:var(--coral);
+  border:1px solid rgba(180,55,55,0.3);
+  top:25%;left:15%;animation-delay:0s;
+}
+.float-badge:nth-child(2){
+  background:rgba(38,135,128,0.15);color:var(--turquoise);
+  border:1px solid rgba(38,135,128,0.3);
+  top:35%;right:12%;animation-delay:1s;
+}
+.float-badge:nth-child(3){
+  background:rgba(170,138,18,0.15);color:var(--sunshine);
+  border:1px solid rgba(170,138,18,0.3);
+  bottom:30%;left:10%;animation-delay:2s;
+}
+.float-badge:nth-child(4){
+  background:rgba(118,62,175,0.15);color:var(--lavender);
+  border:1px solid rgba(118,62,175,0.3);
+  bottom:25%;right:15%;animation-delay:3s;
+}
+@keyframes floatBadge{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-15px) rotate(2deg)}
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.5rem 1rem;border-radius:999px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  font-size:0.75rem;font-weight:500;color:var(--turquoise);
+  margin-bottom:2rem;opacity:0;animation:fadeUp 0.8s 0.2s forwards;
+  backdrop-filter:blur(10px);
+}
+.hero-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--turquoise);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+.hero h1{
+  font-size:clamp(3.5rem,10vw,7rem);font-weight:800;
+  line-height:1;letter-spacing:-0.03em;
+  opacity:0;animation:fadeUp 0.8s 0.4s forwards;
+  position:relative;
+}
+.hero h1 .dr{
+  display:block;font-family:'Space Mono',monospace;
+  font-size:clamp(0.8rem,2vw,1rem);letter-spacing:0.3em;
+  color:var(--text-dim);margin-bottom:1rem;font-weight:400;
+  text-transform:uppercase;
+}
+.hero h1 .cdj{
+  background:linear-gradient(135deg,var(--text) 0%,var(--coral) 50%,var(--peach) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-tagline{
+  font-size:clamp(1.1rem,2.5vw,1.4rem);color:var(--text-dim);
+  max-width:500px;margin:1.5rem auto 0;line-height:1.6;
+  font-weight:500;opacity:0;animation:fadeUp 0.8s 0.6s forwards;
+}
+
+.hero-cta-group{
+  display:flex;gap:1rem;margin-top:2.5rem;flex-wrap:wrap;
+  justify-content:center;opacity:0;animation:fadeUp 0.8s 0.8s forwards;
+}
+.hero-cta-primary{
+  display:flex;align-items:center;gap:0.75rem;padding:1rem 2rem;
+  border-radius:16px;background:linear-gradient(135deg,var(--coral),var(--peach));
+  color:#fff;font-size:0.95rem;font-weight:600;text-decoration:none;
+  transition:all 0.3s var(--ease-spring);border:none;cursor:pointer;
+  box-shadow:0 8px 30px rgba(180,60,60,0.4);
+}
+.hero-cta-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 40px rgba(180,60,60,0.55)}
+.hero-cta-secondary{
+  display:flex;align-items:center;gap:0.75rem;padding:1rem 2rem;
+  border-radius:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text);font-size:0.95rem;font-weight:600;text-decoration:none;
+  transition:all 0.3s var(--ease-spring);backdrop-filter:blur(10px);
+}
+.hero-cta-secondary:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px)}
+
+/* App Preview Window */
+.app-preview{
+  width:100%;max-width:800px;margin-top:4rem;opacity:0;
+  animation:fadeUp 0.8s 1s forwards;
+  perspective:1000px;
+}
+.window{
+  background:var(--bg-card);border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 30px 90px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04) inset;
+  transform:rotateX(5deg);transition:transform 0.5s var(--ease-spring);
+}
+.window:hover{transform:rotateX(0deg)}
+.window-header{
+  display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;
+  background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.window-dot{width:12px;height:12px;border-radius:50%}
+.window-dot:nth-child(1){background:var(--coral)}
+.window-dot:nth-child(2){background:var(--sunshine)}
+.window-dot:nth-child(3){background:var(--mint)}
+.window-title{flex:1;text-align:center;font-size:0.8rem;color:var(--text-muted);font-family:'Space Mono',monospace}
+.window-content{
+  padding:2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+  background:linear-gradient(180deg,var(--bg-card),rgba(255,255,255,0.02));
+}
+.file-card{
+  background:rgba(255,255,255,0.03);border-radius:12px;padding:1rem;
+  border:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:1rem;
+  transition:all 0.3s var(--ease-spring);
+}
+.file-card:hover{transform:translateY(-2px);background:rgba(255,255,255,0.05)}
+.file-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.file-icon.good{background:rgba(42,148,110,0.15);color:var(--mint)}
+.file-icon.warning{background:rgba(170,138,18,0.15);color:var(--sunshine)}
+.file-icon.error{background:rgba(180,55,55,0.15);color:var(--coral)}
+.file-info{flex:1}
+.file-name{font-size:0.85rem;font-weight:600;color:var(--text)}
+.file-meta{font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem}
+.file-status{font-size:0.75rem;font-weight:600;padding:0.25rem 0.75rem;border-radius:999px}
+.file-status.good{background:rgba(42,148,110,0.15);color:var(--mint)}
+.file-status.warning{background:rgba(170,138,18,0.15);color:var(--sunshine)}
+
+.scroll-indicator{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  opacity:0;animation:fadeUp 0.8s 1.2s forwards;
+}
+.scroll-indicator span{font-size:0.7rem;color:var(--text-muted);font-weight:500}
+.scroll-line{width:24px;height:40px;border:2px solid rgba(255,255,255,0.1);border-radius:12px;position:relative}
+.scroll-line::after{
+  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:4px;height:8px;background:var(--turquoise);border-radius:2px;
+  animation:scrollDot 2s infinite;
+}
+@keyframes scrollDot{0%{top:6px;opacity:1}100%{top:22px;opacity:0}}
+
+/* ===== SECTIONS ===== */
+.section-header{text-align:center;margin-bottom:4rem}
+.section-label{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.5rem 1rem;border-radius:999px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  font-size:0.75rem;font-weight:600;color:var(--turquoise);
+  margin-bottom:1rem;
+}
+.section-title{
+  font-size:clamp(2rem,5vw,3rem);font-weight:700;
+  letter-spacing:-0.02em;
+}
+
+/* ===== FEATURES GRID ===== */
+.features{padding:6rem 1.5rem;max-width:1200px;margin:0 auto}
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;
+}
+.feature-card{
+  padding:2rem;border-radius:24px;background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden;
+  transition:all 0.4s var(--ease-spring);opacity:0;transform:translateY(30px);
+}
+.feature-card.visible{opacity:1;transform:translateY(0)}
+.feature-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.1)}
+.feature-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--coral),var(--turquoise),var(--lavender));
+  opacity:0;transition:opacity 0.3s;
+}
+.feature-card:hover::before{opacity:1}
+.feature-icon{
+  width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:1.25rem;font-size:1.5rem;transition:all 0.4s var(--ease-spring);
+}
+.feature-card:nth-child(1) .feature-icon{background:rgba(180,55,55,0.15);color:var(--coral)}
+.feature-card:nth-child(2) .feature-icon{background:rgba(38,135,128,0.15);color:var(--turquoise)}
+.feature-card:nth-child(3) .feature-icon{background:rgba(170,138,18,0.15);color:var(--sunshine)}
+.feature-card:nth-child(4) .feature-icon{background:rgba(118,62,175,0.15);color:var(--lavender)}
+.feature-card:nth-child(5) .feature-icon{background:rgba(42,148,110,0.15);color:var(--mint)}
+.feature-card:nth-child(6) .feature-icon{background:rgba(32,105,190,0.15);color:var(--sky)}
+.feature-card:hover .feature-icon{transform:scale(1.1) rotate(-5deg)}
+.feature-card h3{font-size:1.1rem;font-weight:700;margin-bottom:0.75rem}
+.feature-card p{font-size:0.9rem;color:var(--text-dim);line-height:1.6}
+
+/* ===== COMPATIBILITY ===== */
+.compatibility{
+  padding:6rem 1.5rem;background:rgba(255,255,255,0.02);
+  border-top:1px solid rgba(255,255,255,0.05);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.compatibility-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;
+  max-width:1000px;margin:0 auto;
+}
+.comp-item{
+  padding:1.5rem;border-radius:20px;background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.05);text-align:center;
+  transition:all 0.4s var(--ease-spring);cursor:default;
+}
+.comp-item:hover{transform:translateY(-5px) scale(1.02);border-color:rgba(255,255,255,0.1)}
+.comp-icon{
+  width:60px;height:60px;border-radius:20px;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;
+}
+.comp-item:nth-child(1) .comp-icon{background:rgba(180,55,55,0.15);color:var(--coral)}
+.comp-item:nth-child(2) .comp-icon{background:rgba(38,135,128,0.15);color:var(--turquoise)}
+.comp-item:nth-child(3) .comp-icon{background:rgba(170,138,18,0.15);color:var(--sunshine)}
+.comp-item:nth-child(4) .comp-icon{background:rgba(118,62,175,0.15);color:var(--lavender)}
+.comp-item:nth-child(5) .comp-icon{background:rgba(42,148,110,0.15);color:var(--mint)}
+.comp-item:nth-child(6) .comp-icon{background:rgba(32,105,190,0.15);color:var(--sky)}
+.comp-name{font-size:0.95rem;font-weight:600;margin-bottom:0.25rem}
+.comp-formats{font-size:0.75rem;color:var(--text-muted)}
+
+/* ===== DOWNLOAD ===== */
+.download-section{
+  padding:6rem 1.5rem;text-align:center;max-width:600px;margin:0 auto;
+}
+.download-card{
+  padding:2.5rem;border-radius:32px;background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.1);margin-top:2rem;
+  box-shadow:0 25px 80px rgba(0,0,0,0.3);
+}
+.step{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding:1rem;border-radius:16px;background:rgba(255,255,255,0.03);transition:all 0.3s}
+.step.completed{background:rgba(38,135,128,0.1)}
+.step-num{
+  width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.1);color:var(--text);font-weight:700;font-size:0.9rem;
+  transition:all 0.3s var(--ease-spring);
+}
+.step.completed .step-num{background:var(--turquoise);color:var(--bg)}
+.step-content{text-align:left;flex:1}
+.step-content h4{font-size:0.95rem;font-weight:600}
+.step-content p{font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem}
+
+.ig-btn{
+  display:flex;align-items:center;justify-content:center;gap:0.75rem;width:100%;padding:1rem;
+  border-radius:16px;background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);
+  color:#fff;font-size:0.9rem;font-weight:600;border:none;cursor:pointer;
+  transition:all 0.3s var(--ease-spring);text-decoration:none;margin-bottom:1rem;
+}
+.ig-btn:hover{transform:scale(1.02);box-shadow:0 8px 25px rgba(95,30,140,0.3)}
+
+.dl-container{opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.5s var(--ease-spring)}
+.dl-container.unlocked{opacity:1;transform:translateY(0);pointer-events:all}
+.dl-btn{
+  display:flex;align-items:center;justify-content:center;gap:0.75rem;width:100%;padding:1rem;
+  border-radius:16px;background:linear-gradient(135deg,var(--mint),var(--turquoise));
+  color:#0a0a0d;font-size:0.9rem;font-weight:700;border:none;cursor:pointer;
+  transition:all 0.3s var(--ease-spring);text-decoration:none;
+  box-shadow:0 8px 25px rgba(40,150,120,0.35);
+}
+.dl-btn:hover{transform:scale(1.02);box-shadow:0 12px 35px rgba(40,150,120,0.5)}
+.dl-hint{margin-top:1rem;font-size:0.75rem;color:var(--text-muted)}
+
+/* ===== FOOTER ===== */
+footer{padding:3rem 1.5rem;text-align:center;border-top:1px solid rgba(255,255,255,0.05)}
+.footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:0.85rem;font-weight:500;transition:color 0.3s}
+.footer-links a:hover{color:var(--turquoise)}
+footer p{font-size:0.8rem;color:var(--text-muted)}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);
+  padding:1rem 2rem;border-radius:16px;background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.1);color:var(--text);
+  font-weight:500;z-index:200;transition:all 0.5s var(--ease-spring);
+  box-shadow:0 10px 40px rgba(0,0,0,0.3);
+}
+.toast.show{bottom:2rem}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .float-badge{display:none}
+  .window-content{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .hero h1{font-size:clamp(2.8rem,12vw,4.5rem)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="mesh-bg">
+  <div class="mesh-blob"></div>
+  <div class="mesh-blob"></div>
+  <div class="mesh-blob"></div>
+  <div class="mesh-blob"></div>
+</div>
+
+<div class="container">
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">🎧</div>
+    Dr. CDJ
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#players">Players</a>
+    <a href="#download">Download</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('download').scrollIntoView({behavior:'smooth'})">Get it free</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="float-badge">⚡ Fast</div>
+  <div class="float-badge">🔒 Safe</div>
+  <div class="float-badge">🆓 Free</div>
+  <div class="float-badge">🍎 Mac</div>
+  
+  <div class="hero-badge">
+    <span></span> Open Source App for macOS
+  </div>
+  <h1>
+    <span class="dr">Audio Compatibility</span>
+    <span class="cdj">Dr. CDJ</span>
+  </h1>
+  <p class="hero-tagline">
+    Check and convert your audio files for Pioneer CDJ players. 
+    Drag, drop, done. Made for Mac.
+  </p>
+  
+  <div class="hero-cta-group">
+    <a href="#download" class="hero-cta-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download for Mac
+    </a>
+    <a href="#features" class="hero-cta-secondary">
+      See how it works
+    </a>
+  </div>
+  
+  <!-- App Preview Window -->
+  <div class="app-preview">
+    <div class="window">
+      <div class="window-header">
+        <div class="window-dot"></div>
+        <div class="window-dot"></div>
+        <div class="window-dot"></div>
+        <div class="window-title">Dr. CDJ — Drag files to check</div>
+      </div>
+      <div class="window-content">
+        <div class="file-card">
+          <div class="file-icon good">✓</div>
+          <div class="file-info">
+            <div class="file-name">Track_01.wav</div>
+            <div class="file-meta">24-bit / 44.1kHz</div>
+          </div>
+          <div class="file-status good">Good</div>
+        </div>
+        <div class="file-card">
+          <div class="file-icon warning">!</div>
+          <div class="file-info">
+            <div class="file-name">Track_02.flac</div>
+            <div class="file-meta">Convert to WAV</div>
+          </div>
+          <div class="file-status warning">Fix</div>
+        </div>
+        <div class="file-card">
+          <div class="file-icon good">✓</div>
+          <div class="file-info">
+            <div class="file-name">Track_03.aiff</div>
+            <div class="file-meta">16-bit / 48kHz</div>
+          </div>
+          <div class="file-status good">Good</div>
+        </div>
+        <div class="file-card">
+          <div class="file-icon good">✓</div>
+          <div class="file-info">
+            <div class="file-name">Track_04.wav</div>
+            <div class="file-meta">24-bit / 96kHz</div>
+          </div>
+          <div class="file-status good">Good</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="scroll-indicator">
+    <span>Scroll to explore</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <div class="section-label">✨ Features</div>
+    <h2 class="section-title">Everything you need</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" data-delay="0">
+      <div class="feature-icon">🎯</div>
+      <h3>All Pioneer Players</h3>
+      <p>Supports CDJ-2000 Nexus, NXS2, CDJ-3000, XDJ-1000MK2, XDJ-700, and more.</p>
+    </div>
+    <div class="feature-card" data-delay="100">
+      <div class="feature-icon">📁</div>
+      <h3>Drag & Drop</h3>
+      <p>Drop files or entire folders. Analysis starts instantly. No configuration needed.</p>
+    </div>
+    <div class="feature-card" data-delay="200">
+      <div class="feature-icon">⚡</div>
+      <h3>Batch Processing</h3>
+      <p>Process hundreds of files at once. Parallel conversion saves you time.</p>
+    </div>
+    <div class="feature-card" data-delay="300">
+      <div class="feature-icon">🎨</div>
+      <h3>Smart Conversion</h3>
+      <p>Automatically picks the best format for your target player. No guesswork.</p>
+    </div>
+    <div class="feature-card" data-delay="400">
+      <div class="feature-icon">🎵</div>
+      <h3>Studio Quality</h3>
+      <p>Export up to 24-bit / 96kHz. WAV, AIFF, and more. Zero quality loss.</p>
+    </div>
+    <div class="feature-card" data-delay="500">
+      <div class="feature-icon">💻</div>
+      <h3>Native Mac App</h3>
+      <p>Beautiful native interface + command line for automation. Best of both worlds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPATIBILITY -->
+<section class="compatibility" id="players">
+  <div class="section-header">
+    <div class="section-label">🎛️ Compatibility</div>
+    <h2 class="section-title">Works with your setup</h2>
+  </div>
+  <div class="compatibility-grid">
+    <div class="comp-item">
+      <div class="comp-icon">2000</div>
+      <div class="comp-name">CDJ-2000</div>
+      <div class="comp-formats">Nexus & NXS2</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-icon">3000</div>
+      <div class="comp-name">CDJ-3000</div>
+      <div class="comp-formats">Latest flagship</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-icon">XDJ</div>
+      <div class="comp-name">XDJ Series</div>
+      <div class="comp-formats">1000MK2 & 700</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-icon">FL</div>
+      <div class="comp-name">FLAC</div>
+      <div class="comp-formats">→ WAV conversion</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-icon">OG</div>
+      <div class="comp-name">OGG</div>
+      <div class="comp-formats">→ AIFF conversion</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-icon">24</div>
+      <div class="comp-name">Hi-Res</div>
+      <div class="comp-formats">24-bit / 96kHz</div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section class="download-section" id="download">
+  <div class="section-label">⬇️ Download</div>
+  <h2 class="section-title">Ready to download?</h2>
+  
+  <div class="download-card">
+    <!-- STEP 1: FOLLOW ON INSTAGRAM -->
+    <div class="step" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Follow on Instagram</h4>
+        <p>Stay updated on new features</p>
+      </div>
+    </div>
+    
+    <!-- INSTAGRAM BUTTON -->
+    <a href="https://instagram.com/indigoselection" target="_blank" rel="noopener" class="ig-btn" id="igFollowBtn" onclick="handleIgClick()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      Follow @indigoselection
+    </a>
+    
+    <!-- STEP 2: DOWNLOAD (HIDDEN INITIALLY) -->
+    <div class="step" id="step2" style="opacity:0.5">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Download the app</h4>
+        <p>macOS 12+ • Intel & Apple Silicon</p>
+      </div>
+    </div>
+    
+    <!-- DOWNLOAD BUTTON (HIDDEN INITIALLY) -->
+    <div class="dl-container" id="dlContainer">
+      <a href="https://github.com/IndigoAutomation/DR-CDJ/releases/latest/download/Dr-CDJ-1.0.1-macOS.dmg" class="dl-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Dr. CDJ
+      </a>
+      <p class="dl-hint">Free • Open Source • MIT License</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/IndigoAutomation/DR-CDJ" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://instagram.com/indigoselection" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:hello@indigoselection.com">Contact</a>
+  </div>
+  <p>Made with 💜 for DJs everywhere</p>
+</footer>
+
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">🎉 Download unlocked! Thanks for your support.</div>
+
+<script>
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Scroll reveal for feature cards
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), parseInt(entry.target.dataset.delay) || 0);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.feature-card').forEach(card => observer.observe(card));
+
+// Instagram gate logic
+let igClicked = false;
+
+function handleIgClick() {
+  igClicked = true;
+  // Try to unlock after 2.5 seconds
+  setTimeout(unlockDownload, 2500);
+  
+  // Also unlock when user returns to tab
+  document.addEventListener('visibilitychange', function handler() {
+    if (document.visibilityState === 'visible' && igClicked) {
+      unlockDownload();
+      document.removeEventListener('visibilitychange', handler);
+    }
+  });
+}
+
+function unlockDownload() {
+  // Prevent double unlock
+  if (document.getElementById('dlContainer').classList.contains('unlocked')) return;
+  
+  // Mark step 1 as completed
+  document.getElementById('step1').classList.add('completed');
+  
+  // Show step 2
+  document.getElementById('step2').style.opacity = '1';
+  setTimeout(() => document.getElementById('step2').classList.add('completed'), 200);
+  
+  // Show download button
+  document.getElementById('dlContainer').classList.add('unlocked');
+  
+  // Hide Instagram button
+  document.getElementById('igFollowBtn').style.display = 'none';
+  
+  // Show toast notification
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+  
+  // Save to session storage
+  sessionStorage.setItem('dr-cdj-unlocked', '1');
+}
+
+// Check if already unlocked (page refresh)
+if (sessionStorage.getItem('dr-cdj-unlocked')) {
+  document.getElementById('step1').classList.add('completed');
+  document.getElementById('step2').style.opacity = '1';
+  document.getElementById('step2').classList.add('completed');
+  document.getElementById('dlContainer').classList.add('unlocked');
+  document.getElementById('igFollowBtn').style.display = 'none';
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. CDJ - Installazione</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f11 0%, #1a1a1f 100%);
+            color: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: #1a1a1f;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #3f3f46;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+        
+        .steps {
+            margin: 30px 0;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #25252d;
+            border-radius: 12px;
+            border-left: 3px solid #6366f1;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #6366f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #fafafa;
+        }
+        
+        .step-content p {
+            font-size: 14px;
+            color: #a1a1aa;
+            line-height: 1.5;
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 24px;
+            margin: 10px 0;
+            color: #6366f1;
+        }
+        
+        .warning {
+            background: #78350f;
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 25px;
+        }
+        
+        .warning h3 {
+            color: #f59e0b;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .warning p {
+            font-size: 13px;
+            color: #fcd34d;
+            line-height: 1.5;
+        }
+        
+        .warning code {
+            background: #451a03;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SF Mono", Monaco, monospace;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #3f3f46;
+        }
+        
+        .footer p {
+            font-size: 12px;
+            color: #71717a;
+        }
+        
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        
+        .drag-hint {
+            text-align: center;
+            background: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .drag-hint p {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .drag-hint span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <div class="logo-icon">◉</div>
+            <h1>Dr. CDJ</h1>
+            <p>Audio Compatibility Checker per Pioneer CDJ</p>
+        </div>
+        
+        <div class="drag-hint">
+            <p>⬇️ Trascina Dr-CDJ.app su Applications ⬇️</p>
+            <span>Drag Dr-CDJ.app to the Applications folder</span>
+        </div>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Trascina l'app in Applications</h3>
+                    <p>Drag the Dr-CDJ.app icon into your Applications folder</p>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇</div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Espelli il DMG</h3>
+                    <p>Eject this DMG by dragging it to the Trash</p>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇</div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Avvia Dr. CDJ</h3>
+                    <p>Open Dr. CDJ from Applications or Spotlight</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ Prima apertura / First Launch</h3>
+            <p>
+                Se macOS mostra un avviso di sicurezza, vai in <strong>Preferenze di Sistema → Sicurezza e Privacy</strong> e clicca <strong>"Apri comunque"</strong>.<br><br>
+                <em>If macOS shows a security warning, go to <strong>System Preferences → Security & Privacy</strong> and click <strong>"Open Anyway"</strong>.</em><br><br>
+                Oppure da terminale / Or run in Terminal:<br>
+                <code>xattr -rd com.apple.quarantine /Applications/Dr-CDJ.app</code>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Versione 1.0.1 | <a href="https://github.com/IndigoAutomation/Dr-CDJ">GitHub</a> | <a href="https://github.com/IndigoAutomation/Dr-CDJ/issues">Supporto</a></p>
+        </div>
+    </div>
+</body>
+</html>

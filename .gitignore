@@ -88,3 +88,16 @@ docs/internal/
 # FFmpeg binaries (downloaded during build)
 src/dr_cdj/bin/
 !src/dr_cdj/bin/.gitkeep
+
+# Remotion project (node_modules, build output)
+remotion-dr-cdj-stories/node_modules/
+remotion-dr-cdj-stories/out/
+remotion-dr-cdj-stories/build/
+remotion-dr-cdj-stories/.cache/
+remotion-dr-cdj-stories/*.mp4
+remotion-dr-cdj-stories/*.mov
+remotion-dr-cdj-stories/*.webm
+!remotion-dr-cdj-stories/src/
+!remotion-dr-cdj-stories/*.json
+!remotion-dr-cdj-stories/*.ts
+!remotion-dr-cdj-stories/*.md

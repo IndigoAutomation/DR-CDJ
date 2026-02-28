@@ -1,0 +1,23 @@
+{
+  "name": "dr-cdj-instagram-stories",
+  "version": "1.0.0",
+  "description": "Instagram Stories per Dr. CDJ - Created with Remotion",
+  "scripts": {
+    "start": "remotion preview src/index.tsx",
+    "build": "remotion render src/index.tsx",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "remotion": "4.0.267",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@remotion/zod-types": "4.0.267",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.267",
+    "@types/react": "^18.3.12",
+    "@types/node": "^20.17.6",
+    "typescript": "^5.6.3"
+  }
+}

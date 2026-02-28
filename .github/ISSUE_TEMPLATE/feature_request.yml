@@ -1,0 +1,63 @@
+name: 💡 Feature Request
+description: Suggerisci un'idea per questo progetto
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per voler migliorare CDJ-Check! Compila questo form per proporre la tua idea.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisiti
+      description: Assicurati di aver soddisfatto questi requisiti.
+      options:
+        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/cdj-check/issues) per evitare duplicati
+          required: true
+        - label: Ho letto la [roadmap](https://github.com/filippoitaliano/cdj-check#roadmap)
+          required: true
+
+  - type: textarea
+    attributes:
+      label: La tua richiesta è correlata a un problema?
+      description: Una descrizione chiara e concisa del problema
+      placeholder: |
+        Sono sempre frustrato quando devo convertire manualmente i file FLAC...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Descrivi la soluzione desiderata
+      description: Una descrizione chiara di cosa vuoi che accada
+      placeholder: |
+        Vorrei che CDJ-Check supportasse anche il CDJ-3000 con i suoi formati nativi...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Descrivi le alternative considerate
+      description: Una descrizione di qualsiasi soluzione alternativa o feature che hai considerato
+      placeholder: |
+        Ho pensato di usare un altro tool, ma CDJ-Check è più completo...
+
+  - type: dropdown
+    attributes:
+      label: Per quale tipo di utente è utile questa feature?
+      options:
+        - DJ professionista (club/festival)
+        - DJ resident
+        - Producer/DJ
+        - Service audio / Agenzia
+        - Sviluppatore
+        - Altro
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Informazioni aggiuntive
+      description: Screenshots, mockup, o qualsiasi altro contesto
+      placeholder: Aggiungi qualsiasi informazione utile...

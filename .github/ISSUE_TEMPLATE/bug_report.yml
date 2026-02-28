@@ -1,0 +1,96 @@
+name: 🐛 Bug Report
+description: Segnala un bug per aiutarci a migliorare
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per aver dedicato tempo a segnalare questo bug! Per aiutarci a risolverlo rapidamente, ti chiediamo di compilare questo form nel modo più dettagliato possibile.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisiti
+      description: Assicurati di aver soddisfatto questi requisiti prima di segnalare il bug.
+      options:
+        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/cdj-check/issues) per evitare duplicati
+          required: true
+        - label: Sto usando l'ultima versione di CDJ-Check
+          required: true
+        - label: Ho letto la [documentazione](https://github.com/filippoitaliano/cdj-check/blob/main/README.md)
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Descrizione del bug
+      description: Una descrizione chiara e concisa del bug.
+      placeholder: |
+        Quando trascino un file FLAC nella GUI, l'applicazione si blocca...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Passaggi per riprodurre
+      description: Passaggi specifici per riprodurre il comportamento
+      placeholder: |
+        1. Avvia CDJ-Check
+        2. Trascina un file FLAC nella drop zone
+        3. Clicca su "Converti"
+        4. L'app si blocca
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Comportamento atteso
+      description: Cosa ti aspettavi che accadesse?
+      placeholder: Il file dovrebbe essere convertito in WAV senza errori...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Screenshots / Log
+      description: Se applicabile, aggiungi screenshot o log dell'errore
+      placeholder: Incolla qui errori dalla console o screenshot...
+
+  - type: dropdown
+    attributes:
+      label: Sistema Operativo
+      description: Su quale sistema operativo stai eseguendo CDJ-Check?
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS 12 (Monterey)
+        - macOS 13 (Ventura)
+        - macOS 14 (Sonoma)
+        - Ubuntu 20.04
+        - Ubuntu 22.04
+        - Altro Linux
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Versione Python
+      description: Se installato da sorgente, quale versione di Python usi?
+      placeholder: "es. 3.11.4"
+
+  - type: input
+    attributes:
+      label: Versione CDJ-Check
+      description: Quale versione di CDJ-Check stai usando?
+      placeholder: "es. 0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Informazioni aggiuntive
+      description: Qualsiasi altra informazione utile per diagnosticare il problema
+      placeholder: Dettagli sul file audio che causa il problema, configurazione particolare, ecc.

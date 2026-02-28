@@ -1,0 +1,10 @@
+# CDJ-Check - Dependencies
+# Installa anche FFmpeg e ffprobe separatamente:
+# - macOS: brew install ffmpeg
+# - Ubuntu/Debian: sudo apt-get install ffmpeg
+# - Windows: scarica da https://ffmpeg.org/download.html
+
+customtkinter>=5.2
+tkinterdnd2>=0.3
+
+# Dev dependencies (installa con: pip install -r requirements.txt -r requirements-dev.txt)

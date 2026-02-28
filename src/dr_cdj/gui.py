@@ -189,7 +189,9 @@ class FileCard(ctk.CTkFrame):
             anchor="w",
         )
         self.name_label.grid(row=0, column=1, sticky="w")
-        
+        if len(filename) > 45:
+            ModernTooltip(self.name_label, filename)
+
         # Status message
         status_text = self.result.message
         if len(status_text) > 60:
@@ -313,48 +315,56 @@ class ProfileInfoPanel(ctk.CTkFrame):
             text_color=COLORS["primary_light"],
         )
         self.name_label.pack(anchor="w")
-        
-        self.desc_label = ctk.CTkLabel(
+
+        # Max quality pill badge
+        self.max_quality_pill = ctk.CTkLabel(
             self.info_frame,
             text="",
-            font=("SF Pro Display", 11),
-            text_color=COLORS["text_secondary"],
-        )
-        self.desc_label.pack(anchor="w", pady=(2, 0))
-        
-        self.max_quality_label = ctk.CTkLabel(
-            self.info_frame,
-            text="",
-            font=("SF Pro Display", 12),
+            font=("SF Pro Display", 11, "bold"),
             text_color=COLORS["compatible"],
+            fg_color=COLORS["compatible_bg"],
+            corner_radius=8,
+            padx=10,
+            pady=3,
         )
-        self.max_quality_label.pack(anchor="w", pady=(8, 0))
-        
-        self.formats_label = ctk.CTkLabel(
-            self.info_frame,
-            text="",
-            font=("SF Pro Display", 11),
-            text_color=COLORS["text_muted"],
-        )
-        self.formats_label.pack(anchor="w", pady=(4, 0))
+        self.max_quality_pill.pack(anchor="w", pady=(8, 0))
+
+        # Format chips container
+        self.formats_chips_frame = ctk.CTkFrame(self.info_frame, fg_color="transparent")
+        self.formats_chips_frame.pack(anchor="w", fill="x", pady=(6, 0))
+        self._format_chips: list[ctk.CTkLabel] = []
     
     def update_info(self, profile_id: str):
         """Update profile information."""
         profile = CDJ_PROFILES.get(profile_id)
         if not profile:
             return
-        
-        self.name_label.configure(text=f"{profile.name} ({profile.year})")
-        self.desc_label.configure(text=profile.description)
-        
+
+        self.name_label.configure(text=f"{profile.name}  ({profile.year})")
+
         max_sr = profile.max_sample_rate / 1000
         max_bd = profile.max_bit_depth
-        self.max_quality_label.configure(
-            text=f"🎯 Max Quality: {max_bd}-bit / {max_sr:.1f} kHz"
+        self.max_quality_pill.configure(
+            text=f"Max: {max_bd}-bit / {max_sr:.0f} kHz"
         )
-        
-        formats_text = "Native formats: " + ", ".join(profile.formats.keys())
-        self.formats_label.configure(text=formats_text)
+
+        # Rebuild format chips
+        for chip in self._format_chips:
+            chip.destroy()
+        self._format_chips.clear()
+        for fmt_name in profile.formats.keys():
+            chip = ctk.CTkLabel(
+                self.formats_chips_frame,
+                text=fmt_name,
+                font=("SF Pro Display", 10, "bold"),
+                text_color=COLORS["text"],
+                fg_color=COLORS["surface_light"],
+                corner_radius=6,
+                padx=8,
+                pady=2,
+            )
+            chip.pack(side="left", padx=(0, 4), pady=2)
+            self._format_chips.append(chip)
 
 
 class ConversionSettingsPanel(ctk.CTkFrame):
@@ -365,9 +375,11 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         
         self.settings = settings
         self.on_change = on_change
-        
+        self._current_profile_id: Optional[str] = None
+        self._flash_job: Optional[str] = None
+
         self.configure(fg_color=COLORS["surface"], corner_radius=12)
-        
+
         # Title
         self.title = ctk.CTkLabel(
             self,
@@ -376,11 +388,14 @@ class ConversionSettingsPanel(ctk.CTkFrame):
             text_color=COLORS["text"],
         )
         self.title.pack(anchor="w", padx=16, pady=(12, 8))
-        
+
         # Controls container
         self.controls_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.controls_frame.pack(fill="x", padx=16, pady=(0, 12))
-        
+
+        # Max quality shortcut button
+        self._setup_max_quality_button()
+
         # Output format
         self._setup_format_selector()
         
@@ -396,16 +411,46 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         # Max quality info
         self._setup_quality_info()
     
+    def _setup_max_quality_button(self):
+        """Coral 'Apply Max Quality' button at the top of the settings panel."""
+        self.max_quality_btn = ctk.CTkButton(
+            self.controls_frame,
+            text="Apply Max Quality for this Player",
+            font=("SF Pro Display", 12, "bold"),
+            fg_color=COLORS["primary"],
+            hover_color=COLORS["primary_dark"],
+            text_color=COLORS["text"],
+            corner_radius=8,
+            height=32,
+            command=self._on_max_quality_click,
+        )
+        self.max_quality_btn.pack(fill="x", pady=(0, 10))
+
+    def _on_max_quality_click(self):
+        if self._current_profile_id:
+            self.set_max_quality(self._current_profile_id)
+
+    def flash_update(self):
+        """Briefly flash the panel border to signal settings were auto-updated."""
+        if self._flash_job is not None:
+            self.after_cancel(self._flash_job)
+        self.configure(border_width=2, border_color=COLORS["primary"])
+        self._flash_job = self.after(350, self._flash_reset)
+
+    def _flash_reset(self):
+        self.configure(border_width=0)
+        self._flash_job = None
+
     def _setup_format_selector(self):
         """Output format selector."""
         frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         frame.pack(fill="x", pady=4)
-        
+
         label = ctk.CTkLabel(
             frame,
             text="Format:",
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text_secondary"],
+            font=("SF Pro Display", 12, "bold"),
+            text_color=COLORS["text"],
             width=80,
         )
         label.pack(side="left")
@@ -435,8 +480,8 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         label = ctk.CTkLabel(
             frame,
             text="Sample Rate:",
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text_secondary"],
+            font=("SF Pro Display", 12, "bold"),
+            text_color=COLORS["text"],
             width=80,
         )
         label.pack(side="left")
@@ -466,8 +511,8 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         label = ctk.CTkLabel(
             frame,
             text="Bit Depth:",
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text_secondary"],
+            font=("SF Pro Display", 12, "bold"),
+            text_color=COLORS["text"],
             width=80,
         )
         label.pack(side="left")
@@ -497,8 +542,8 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         label = ctk.CTkLabel(
             frame,
             text="Destination:",
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text_secondary"],
+            font=("SF Pro Display", 12, "bold"),
+            text_color=COLORS["text"],
             width=80,
         )
         label.pack(side="left")
@@ -537,12 +582,13 @@ class ConversionSettingsPanel(ctk.CTkFrame):
     
     def update_quality_info(self, profile_id: str):
         """Update quality info based on profile."""
+        self._current_profile_id = profile_id
         profile = CDJ_PROFILES.get(profile_id)
         if profile:
             max_sr = profile.max_sample_rate / 1000
             max_bd = profile.max_bit_depth
             self.quality_info_label.configure(
-                text=f"💡 Recommended for {profile.name}: {max_bd}-bit / {max_sr:.1f} kHz"
+                text=f"💡 Recommended for {profile.name}: {max_bd}-bit / {max_sr:.0f} kHz"
             )
     
     def set_max_quality(self, profile_id: str):
@@ -579,7 +625,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         dir_path = filedialog.askdirectory(title="Select destination folder")
         if dir_path:
             self.settings.output_dir = Path(dir_path)
-            display_path = dir_path[:30] + "..." if len(dir_path) > 30 else dir_path
+            display_path = ("…" + dir_path[-25:]) if len(dir_path) > 25 else dir_path
             self.dir_label.configure(text=display_path)
             self.on_change()
 
@@ -757,6 +803,9 @@ class DrCDJApp:
         self.file_items: list[FileCard] = []
         self.is_converting = False
         self.conversion_settings = ConversionSettings()
+        self._pulse_job: Optional[str] = None
+        self._pulse_state: bool = False
+        self._progress_frame_visible: bool = False
         
         self._setup_ui()
         
@@ -845,40 +894,40 @@ class DrCDJApp:
         self.drop_frame = ctk.CTkFrame(
             self.main_frame,
             fg_color=COLORS["surface"],
-            border_width=1,
+            border_width=2,
             border_color=COLORS["border"],
             corner_radius=20,
-            height=100,
+            height=160,
         )
         self.drop_frame.grid(row=1, column=0, columnspan=2, sticky="new", pady=(0, 16))
         self.drop_frame.grid_propagate(False)
-        
+
         # Icon
         self.drop_icon = ctk.CTkLabel(
             self.drop_frame,
-            text="↗",
-            font=("SF Pro Display", 32),
+            text="⬆",
+            font=("SF Pro Display", 48),
             text_color=COLORS["primary"],
         )
-        self.drop_icon.place(relx=0.5, rely=0.30, anchor="center")
-        
+        self.drop_icon.place(relx=0.5, rely=0.28, anchor="center")
+
         # Main text
         self.drop_label = ctk.CTkLabel(
             self.drop_frame,
             text="Drop audio files here",
-            font=("SF Pro Display", 14, "bold"),
+            font=("SF Pro Display", 16, "bold"),
             text_color=COLORS["text"],
         )
         self.drop_label.place(relx=0.5, rely=0.60, anchor="center")
-        
+
         # Secondary text
         self.drop_sublabel = ctk.CTkLabel(
             self.drop_frame,
-            text="or click to browse",
-            font=("SF Pro Display", 10),
+            text="or click to browse  ·  MP3, WAV, AIFF, FLAC…",
+            font=("SF Pro Display", 11),
             text_color=COLORS["text_muted"],
         )
-        self.drop_sublabel.place(relx=0.5, rely=0.78, anchor="center")
+        self.drop_sublabel.place(relx=0.5, rely=0.80, anchor="center")
         
         # Bind drag-and-drop
         self.drop_frame.drop_target_register(DND_FILES)
@@ -1017,23 +1066,80 @@ class DrCDJApp:
         )
         self.convert_btn.place(relx=0.98, rely=0.5, anchor="e", x=-10)
         
-        # Progress bar (initially hidden)
+        # Progress frame (swaps with info_label during conversion)
+        self.progress_frame = ctk.CTkFrame(action_bar, fg_color="transparent")
+        self.progress_label = ctk.CTkLabel(
+            self.progress_frame,
+            text="",
+            font=("SF Pro Display", 12),
+            text_color=COLORS["text_secondary"],
+        )
+        self.progress_label.pack(side="left", padx=(0, 12))
         self.progress = ctk.CTkProgressBar(
-            action_bar,
-            width=200,
-            height=6,
+            self.progress_frame,
+            width=180,
+            height=14,
             mode="determinate",
             progress_color=COLORS["primary"],
             fg_color=COLORS["surface_light"],
+            corner_radius=7,
         )
         self.progress.set(0)
+        self.progress.pack(side="left")
     
     def _apply_max_quality(self):
         """Apply max quality for current profile."""
         profile_id = self.compatibility.profile_id
         self.settings_panel.set_max_quality(profile_id)
         self.profile_info.update_info(profile_id)
-    
+
+    # ── Progress frame helpers ─────────────────────────────────────────────
+
+    def _show_progress_frame(self):
+        """Hide info label and show progress frame during conversion."""
+        self.info_label.place_forget()
+        self.progress_frame.place(relx=0.02, rely=0.5, anchor="w")
+
+    def _hide_progress_frame(self):
+        """Hide progress frame and restore info label."""
+        self.progress_frame.place_forget()
+        self.progress.set(0)
+        self.progress_label.configure(text="")
+        self.info_label.place(relx=0.02, rely=0.5, anchor="w")
+
+    def _restore_info_label(self):
+        """Reset info label colour after showing conversion result."""
+        self.info_label.configure(text_color=COLORS["text_secondary"])
+        self._update_info_label()
+
+    def _update_info_label(self):
+        """Rebuild action-bar summary with colour-coded dot indicators."""
+        to_convert = sum(1 for r in self.results if r.needs_conversion)
+        compatible = sum(1 for r in self.results if r.is_compatible)
+        errors = sum(1 for r in self.results if r.status == CompatibilityStatus.ERROR)
+
+        parts = []
+        if compatible:
+            parts.append(f"● {compatible} ready")
+        if to_convert:
+            parts.append(f"● {to_convert} to convert")
+        if errors:
+            parts.append(f"● {errors} errors")
+
+        if errors:
+            color = COLORS["error"]
+        elif to_convert:
+            color = COLORS["convertible_lossless"]
+        elif compatible:
+            color = COLORS["compatible"]
+        else:
+            color = COLORS["text_secondary"]
+
+        self.info_label.configure(
+            text="  ".join(parts) if parts else "",
+            text_color=color,
+        )
+
     def _on_settings_change(self):
         """Settings change callback."""
         pass
@@ -1045,9 +1151,10 @@ class DrCDJApp:
         # Update profile info
         self.profile_info.update_info(profile_id)
         
-        # Set max quality automatically
+        # Set max quality automatically and flash to signal update
         self.settings_panel.set_max_quality(profile_id)
-        
+        self.settings_panel.flash_update()
+
         # Re-analyze existing files with new profile
         if self.results:
             new_results = []
@@ -1065,28 +1172,50 @@ class DrCDJApp:
             self.results = new_results
             self._update_file_list()
     
+    # ── Drop zone pulse animation ──────────────────────────────────────────
+
+    def _start_drop_pulse(self):
+        """Start border pulse animation on the drop zone."""
+        if self._pulse_job is not None:
+            return
+        self._pulse_state = True
+        self._pulse_tick()
+
+    def _pulse_tick(self):
+        """One tick of the pulse: alternate border between two coral shades."""
+        color = COLORS["primary"] if self._pulse_state else COLORS["primary_light"]
+        self.drop_frame.configure(border_color=color)
+        self._pulse_state = not self._pulse_state
+        self._pulse_job = self.root.after(280, self._pulse_tick)
+
+    def _stop_drop_pulse(self):
+        """Stop pulse and restore normal border."""
+        if self._pulse_job is not None:
+            self.root.after_cancel(self._pulse_job)
+            self._pulse_job = None
+        self.drop_frame.configure(border_color=COLORS["border"])
+
     def _on_drop_enter(self, event):
         """Callback when mouse enters drop zone."""
         if not self.is_converting:
-            self.drop_frame.configure(
-                border_color=COLORS["primary"],
-                fg_color=COLORS["surface_light"],
-            )
+            self.drop_frame.configure(fg_color=COLORS["surface_hover"])
             self.drop_icon.configure(text_color=COLORS["primary_light"])
-    
+            self._start_drop_pulse()
+
     def _on_drop_leave(self, event):
         """Callback when mouse leaves drop zone."""
         if not self.is_converting:
-            self.drop_frame.configure(
-                border_color=COLORS["border"],
-                fg_color=COLORS["surface"],
-            )
+            self._stop_drop_pulse()
+            self.drop_frame.configure(fg_color=COLORS["surface"])
             self.drop_icon.configure(text_color=COLORS["primary"])
-    
+
     def _on_drop(self, event):
         """Callback for file drop."""
         if self.is_converting:
             return
+        self._stop_drop_pulse()
+        self.drop_frame.configure(fg_color=COLORS["surface"])
+        self.drop_icon.configure(text_color=COLORS["primary"])
         
         # Parse file path(s)
         data = event.data
@@ -1214,24 +1343,12 @@ class DrCDJApp:
         count = len(self.results)
         self.count_badge.configure(text=str(count))
         
-        # Update conversion info
-        to_convert = sum(1 for r in self.results if r.needs_conversion)
-        compatible = sum(1 for r in self.results if r.is_compatible)
-        errors = sum(1 for r in self.results if r.status == CompatibilityStatus.ERROR)
-        
-        info_parts = []
-        if compatible:
-            info_parts.append(f"{compatible} ready")
-        if to_convert:
-            info_parts.append(f"{to_convert} to convert")
-        if errors:
-            info_parts.append(f"{errors} errors")
-        
-        self.info_label.configure(text=" • ".join(info_parts) if info_parts else "")
-        
+        # Update status summary
+        self._update_info_label()
+
         # Enable/disable buttons
+        to_convert = sum(1 for r in self.results if r.needs_conversion)
         self.clear_btn.configure(state="normal" if self.results else "disabled")
-        
         if to_convert and not self.is_converting:
             self.convert_btn.configure(state="normal", text=f"Convert ({to_convert})")
         else:
@@ -1310,8 +1427,8 @@ class DrCDJApp:
         self.convert_btn.configure(state="disabled", text="Converting...")
         self.clear_btn.configure(state="disabled")
         
-        # Show progress bar
-        self.progress.place(relx=0.35, rely=0.5, anchor="w")
+        # Show progress frame
+        self._show_progress_frame()
         
         # Execute conversion in background
         self.root.after(100, lambda: self._do_conversion_batch(to_convert))
@@ -1322,6 +1439,7 @@ class DrCDJApp:
         
         def on_progress(done: int, total: int):
             self.progress.set(done / total)
+            self.progress_label.configure(text=f"Converting {done} / {total}…")
             self.root.update()
         
         # Create custom conversion plans
@@ -1357,25 +1475,20 @@ class DrCDJApp:
             state="normal" if to_convert_count else "disabled",
         )
         self.clear_btn.configure(state="normal")
-        self.progress.place_forget()
-        self.progress.set(0)
-        
-        # Show result
+        self._hide_progress_frame()
+
+        # Show inline result (auto-resets after 5 s)
         summary = self.converter.get_conversion_summary(results)
-        if summary["failed"] == 0:
-            message = f"✅ {summary['successful']} files converted successfully!"
-            if self.conversion_settings.output_dir:
-                message += f"\n\nFolder: {self.conversion_settings.output_dir}"
-            else:
-                message += "\n\nFiles saved to respective 'CDJ_Ready' folders."
-            
-            messagebox.showinfo("Conversion Complete", message)
+        successful = summary["successful"]
+        failed = summary["failed"]
+        if failed == 0:
+            result_text = f"✓ {successful} converted successfully"
+            result_color = COLORS["compatible"]
         else:
-            messagebox.showwarning(
-                "Conversion Completed with Errors",
-                f"⚠️ {summary['successful']} successful, {summary['failed']} failed\n\n"
-                f"Check file list for details."
-            )
+            result_text = f"✓ {successful} converted  ·  ✕ {failed} failed"
+            result_color = COLORS["primary"]
+        self.info_label.configure(text=result_text, text_color=result_color)
+        self.root.after(5000, self._restore_info_label)
     
     def run(self):
         """Start the application."""

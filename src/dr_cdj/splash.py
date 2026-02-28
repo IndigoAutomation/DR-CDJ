@@ -49,7 +49,7 @@ class SplashScreen:
             frame,
             text="◉",
             font=("SF Pro Display", 64),
-            fg="#6366f1",
+            fg="#d94f4f",
             bg="#0f0f11"
         )
         logo_label.pack(pady=(20, 10))
@@ -123,7 +123,7 @@ class SplashScreen:
         width = int(300 * value / 100)
         self.progress_bar.create_rectangle(
             0, 0, width, 6,
-            fill="#6366f1",
+            fill="#d94f4f",
             outline=""
         )
     
@@ -145,7 +145,7 @@ class SplashScreen:
             self.root,
             text="Close",
             command=self.root.destroy,
-            bg="#6366f1",
+            bg="#d94f4f",
             fg="#fafafa",
             font=("SF Pro Display", 12, "bold"),
             relief="flat",

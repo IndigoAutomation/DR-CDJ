@@ -7,9 +7,6 @@
 **Dr. CDJ - Audio Compatibility Checker & Converter per Pioneer CDJ**
 
 Verifica istantaneamente se i tuoi file audio sono compatibili con i Pioneer CDJ (2000 Nexus, NXS2, 3000, XDJ) e convertili automaticamente nel formato di massima qualità supportato.
-
-![Dr. CDJ Screenshot](assets/logo_512.png)
-
 ---
 
 ## ✨ Caratteristiche

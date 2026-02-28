@@ -10,9 +10,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "Dr. CDJ Team"}
+    {name = "Indigo Automation"}
 ]
 keywords = ["audio", "dj", "cdj", "pioneer", "converter", "compatibility"]
+repository = "https://github.com/IndigoAutomation/DR-CDJ"
+homepage = "https://github.com/IndigoAutomation/DR-CDJ"
+bug-tracker = "https://github.com/IndigoAutomation/DR-CDJ/issues"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: End Users/Desktop",

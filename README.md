@@ -28,8 +28,8 @@ Verifica istantaneamente se i tuoi file audio sono compatibili con i Pioneer CDJ
 ### Metodo 1: Script Automatico (Consigliato)
 
 ```bash
-git clone https://github.com/tuousername/dr-cdj.git
-cd dr-cdj
+git clone https://github.com/IndigoAutomation/DR-CDJ.git
+cd DR-CDJ
 python3 install.py
 ```
 
@@ -41,7 +41,7 @@ python3 install.py
 
 ```bash
 # 1. Clona il repository
-git clone https://github.com/tuousername/dr-cdj.git
+git clone https://github.com/IndigoAutomation/DR-CDJ.git
 cd dr-cdj
 
 # 2. Installa dipendenze
@@ -58,7 +58,7 @@ dr-cdj
 
 Scarica l'ultima release:
 ```bash
-curl -L -o Dr. CDJ.dmg https://github.com/tuousername/dr-cdj/releases/latest/download/Dr. CDJ.dmg
+curl -L -o Dr-CDJ.dmg https://github.com/IndigoAutomation/DR-CDJ/releases/latest/download/Dr-CDJ-1.0.1-macOS.dmg
 ```
 
 ---
@@ -140,7 +140,7 @@ Contributi benvenuti! Leggi [CONTRIBUTING.md](CONTRIBUTING.md) per iniziare.
 
 ```bash
 # Setup ambiente
-git clone https://github.com/tuousername/dr-cdj.git
+git clone https://github.com/IndigoAutomation/DR-CDJ.git
 cd dr-cdj
 pip install -e ".[dev]"
 
@@ -152,19 +152,19 @@ ruff check src/
 ruff format src/
 
 # Build app
-pyinstaller Dr. CDJ.spec
+python3 build.py
 ```
 
 ---
 
 ## 📦 Release
 
-| Versione | Download |
-|----------|----------|
-| Latest | [Dr. CDJ.dmg](https://github.com/tuousername/dr-cdj/releases/latest) |
-| macOS | `Dr. CDJ.dmg` |
-| Windows | `Dr. CDJ.exe` |
-| Linux | `dr-cdj.AppImage` |
+| Versione | Download | Stato |
+|----------|----------|-------|
+| Latest | [Dr-CDJ.dmg](https://github.com/IndigoAutomation/DR-CDJ/releases/latest) | ✅ Stabile |
+| macOS | `Dr-CDJ.dmg` | ✅ Supportato |
+| Windows | `Dr-CDJ.exe` | 🚧 In sviluppo |
+| Linux | `dr-cdj` | 🚧 In sviluppo |
 
 ---
 

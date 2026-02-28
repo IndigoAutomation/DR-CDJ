@@ -1,67 +1,66 @@
 #!/bin/bash
-# Crea il DMG per la release macOS
+# Create DMG for macOS release
 
 set -e
 
-APP_NAME="Dr. CDJ"
-VERSION="1.0.0"
-DMG_NAME="${APP_NAME}-${VERSION}-macOS.dmg"
+APP_NAME="Dr-CDJ"
+VERSION="1.0.1"
+DMG_NAME="Dr-CDJ-${VERSION}-macOS.dmg"
 
-echo "🎨 Creazione DMG per ${APP_NAME} v${VERSION}..."
+echo "🎨 Creating DMG for ${APP_NAME} v${VERSION}..."
 
-# Verifica che l'app esista
+# Check that the app exists
 if [ ! -d "dist/${APP_NAME}.app" ]; then
-    echo "❌ Errore: dist/${APP_NAME}.app non trovato"
-    echo "   Esegui prima: pyinstaller Dr. CDJ.spec"
+    echo "❌ Error: dist/${APP_NAME}.app not found"
+    echo "   Run first: python3 build.py"
     exit 1
 fi
 
-# Crea directory temporanea
+# Create temp directory
 TMP_DIR=$(mktemp -d)
 mkdir -p "${TMP_DIR}/${APP_NAME}"
 
-# Copia app
+# Copy app
 cp -R "dist/${APP_NAME}.app" "${TMP_DIR}/${APP_NAME}/"
 
-# Crea link ad Applications
+# Create link to Applications
 ln -s /Applications "${TMP_DIR}/${APP_NAME}/Applications"
 
-# Crea README
-"""cat > "${TMP_DIR}/${APP_NAME}/README.txt" << 'EOF'
-Dr. CDJ v1.0.0
+# Create README
+cat > "${TMP_DIR}/${APP_NAME}/README.txt" << 'EOF'
+Dr. CDJ v1.0.1
 ================
 
-Grazie per aver scaricato Dr. CDJ!
+Thank you for downloading Dr. CDJ!
 
-INSTALLAZIONE:
-1. Trascina Dr. CDJ.app nella cartella Applications
-2. Doppio click su Dr. CDJ.app per avviare
+INSTALLATION:
+1. Drag Dr-CDJ.app to the Applications folder
+2. Double-click Dr-CDJ.app to launch
 
-REQUISITI:
-- macOS 12.0 o superiore
-- FFmpeg installato (opzionale ma consigliato)
+REQUIREMENTS:
+- macOS 12.0 or later
+- FFmpeg (optional, will be auto-downloaded if not present)
 
-Per installare FFmpeg:
+To manually install FFmpeg:
    brew install ffmpeg
 
-SUPPORTO:
-https://github.com/tuousername/dr-cdj/issues
+SUPPORT:
+https://github.com/IndigoAutomation/DR-CDJ/issues
 EOF
-"""
 
-# Crea DMG
-echo "📦 Creazione ${DMG_NAME}..."
+# Create DMG
+echo "📦 Creating ${DMG_NAME}..."
 
-# Usa hdiutil per creare il DMG
+# Use hdiutil to create DMG
 hdiutil create \
-    -volname "${APP_NAME}" \
+    -volname "Dr. CDJ" \
     -srcfolder "${TMP_DIR}/${APP_NAME}" \
     -ov \
     -format UDZO \
     "${DMG_NAME}"
 
-# Pulizia
+# Cleanup
 rm -rf "${TMP_DIR}"
 
-echo "✅ Creato: ${DMG_NAME}"
-echo "📊 Dimensione: $(du -h "${DMG_NAME}" | cut -f1)"
+echo "✅ Created: ${DMG_NAME}"
+echo "📊 Size: $(du -h "${DMG_NAME}" | cut -f1)"

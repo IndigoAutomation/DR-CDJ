@@ -1,4 +1,4 @@
-"""Downloader automatico per FFmpeg su macOS."""
+"""Automatic FFmpeg downloader for macOS."""
 
 import os
 import sys
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class FFmpegDownloader:
-    """Gestisce il download e l'installazione automatica di FFmpeg."""
+    """Manages automatic FFmpeg download and installation."""
     
     # URL per download FFmpeg statico per macOS (evermeet.cx)
     # FFmpeg and ffprobe are separate downloads
@@ -31,10 +31,10 @@ class FFmpegDownloader:
     }
     
     def __init__(self, install_dir: Optional[Path] = None):
-        """Inizializza il downloader.
+        """Initialize downloader.
         
         Args:
-            install_dir: Directory dove installare FFmpeg. 
+            install_dir: Directory to install FFmpeg.
                         Default: ~/.dr_cdj/bin
         """
         if install_dir is None:
@@ -47,11 +47,11 @@ class FFmpegDownloader:
         self.ffprobe_path = self.install_dir / "ffprobe"
     
     def is_ffmpeg_installed(self) -> bool:
-        """Verifica se FFmpeg è già installato nella directory dell'app."""
+        """Check if FFmpeg is already installed in app directory."""
         return self.ffmpeg_path.exists() and self.ffprobe_path.exists()
     
     def get_system_arch(self) -> str:
-        """Rileva l'architettura del sistema."""
+        """Detect system architecture."""
         import platform
         machine = platform.machine()
         if machine == "arm64":
@@ -59,13 +59,13 @@ class FFmpegDownloader:
         return "x86_64"
     
     def download_ffmpeg(self, progress_callback=None) -> bool:
-        """Scarica e installa FFmpeg e FFprobe.
+        """Download and install FFmpeg and FFprobe.
         
         Args:
-            progress_callback: Funzione callback(progress_percent, status_message)
+            progress_callback: Callback function(progress_percent, status_message)
         
         Returns:
-            True se l'installazione è riuscita, False altrimenti
+            True if installation succeeded, False otherwise
         """
         try:
             arch = self.get_system_arch()
@@ -94,7 +94,7 @@ class FFmpegDownloader:
                 urllib.request.urlretrieve(url, temp_zip, reporthook=make_progress_handler(i * 50))
                 
                 if progress_callback:
-                    progress_callback(i * 50 + 45, f"Estrazione {binary_name}...")
+                    progress_callback(i * 50 + 45, f"Extracting {binary_name}...")
                 
                 # Extract
                 if temp_zip.exists():
@@ -103,7 +103,7 @@ class FFmpegDownloader:
                     temp_zip.unlink()
                 
                 if progress_callback:
-                    progress_callback(i * 50 + 50, f"{binary_name} pronto")
+                    progress_callback(i * 50 + 50, f"{binary_name} ready")
             
             # Find and rename extracted files
             for file in self.install_dir.glob("*"):
@@ -116,54 +116,54 @@ class FFmpegDownloader:
                         self.ffprobe_path.chmod(self.ffprobe_path.stat().st_mode | stat.S_IEXEC)
             
             if progress_callback:
-                progress_callback(100, "FFmpeg installato!")
+                progress_callback(100, "FFmpeg installed!")
             
             success = self.is_ffmpeg_installed()
             if success:
-                logger.info(f"FFmpeg installato in {self.install_dir}")
+                logger.info(f"FFmpeg installed in {self.install_dir}")
             else:
-                logger.error(f"FFmpeg non trovato dopo il download. Files: {list(self.install_dir.glob('*'))}")
+                logger.error(f"FFmpeg not found after download. Files: {list(self.install_dir.glob('*'))}")
             
             return success
             
         except Exception as e:
-            logger.exception("Errore durante il download di FFmpeg")
+            logger.exception("Error during FFmpeg download")
             if progress_callback:
-                progress_callback(0, f"Errore: {str(e)}")
+                progress_callback(0, f"Error: {str(e)}")
             return False
     
     def get_ffmpeg_path(self) -> Optional[Path]:
-        """Restituisce il path a FFmpeg se installato."""
+        """Return path to FFmpeg if installed."""
         if self.is_ffmpeg_installed():
             return self.ffmpeg_path
         return None
 
 
 def check_and_install_ffmpeg(parent_window=None):
-    """Controlla FFmpeg e offre di installarlo se mancante.
+    """Check FFmpeg and offer to install if missing.
     
     Args:
-        parent_window: Finestra parent per le dialog (opzionale)
+        parent_window: Parent window for dialogs (optional)
     
     Returns:
-        Tuple (ffmpeg_path, ffprobe_path) o (None, None) se non disponibile
+        Tuple (ffmpeg_path, ffprobe_path) or (None, None) if not available
     """
     import subprocess
     
-    # Prima controlla se FFmpeg è nel PATH di sistema
+    # First check if FFmpeg is in system PATH
     try:
         result = subprocess.run(["ffmpeg", "-version"], capture_output=True, timeout=5)
         if result.returncode == 0:
-            logger.info("FFmpeg trovato nel sistema")
+            logger.info("FFmpeg found in system")
             return "ffmpeg", "ffprobe"
     except:
         pass
     
-    # Controlla nella directory dell'app
+    # Check in app directory
     downloader = FFmpegDownloader()
     
     if downloader.is_ffmpeg_installed():
-        logger.info("FFmpeg trovato in ~/.dr_cdj/bin")
+        logger.info("FFmpeg found in ~/.dr_cdj/bin")
         return str(downloader.ffmpeg_path), str(downloader.ffprobe_path)
     
     # FFmpeg non trovato, chiedi all'utente
@@ -171,10 +171,10 @@ def check_and_install_ffmpeg(parent_window=None):
 
 
 def show_ffmpeg_install_dialog(parent=None):
-    """Mostra una dialog per installare FFmpeg.
+    """Show dialog to install FFmpeg.
     
     Returns:
-        True se l'utente vuole installare, False altrimenti
+        True if user wants to install, False otherwise
     """
     try:
         import tkinter as tk
@@ -185,11 +185,11 @@ def show_ffmpeg_install_dialog(parent=None):
             root.withdraw()
         
         result = messagebox.askyesno(
-            "FFmpeg Richiesto",
-            "Dr. CDJ richiede FFmpeg per analizzare e convertire file audio.\n\n"
-            "FFmpeg non è installato sul tuo sistema.\n\n"
-            "Vuoi scaricarlo e installarlo automaticamente?\n\n"
-            "(Dimensione: ~30 MB)",
+            "FFmpeg Required",
+            "Dr. CDJ requires FFmpeg to analyze and convert audio files.\n\n"
+            "FFmpeg is not installed on your system.\n\n"
+            "Would you like to download and install it automatically?\n\n"
+            "(Size: ~30 MB)",
             icon='warning'
         )
         
@@ -199,29 +199,29 @@ def show_ffmpeg_install_dialog(parent=None):
         return result
         
     except Exception as e:
-        logger.error(f"Errore nella dialog: {e}")
-        # Fallback: assumiamo che l'utente voglia installare
+        logger.error(f"Dialog error: {e}")
+        # Fallback: assume user wants to install
         return True
 
 
 def install_ffmpeg_with_progress(parent=None):
-    """Installa FFmpeg mostrando una progress bar.
+    """Install FFmpeg showing a progress bar.
     
     Returns:
-        Tuple (ffmpeg_path, ffprobe_path) o (None, None)
+        Tuple (ffmpeg_path, ffprobe_path) or (None, None)
     """
     try:
         import tkinter as tk
         from tkinter import ttk
         
-        # Crea finestra progresso
+        # Create progress window
         progress_window = tk.Toplevel(parent) if parent else tk.Tk()
-        progress_window.title("Installazione FFmpeg")
+        progress_window.title("FFmpeg Installation")
         progress_window.geometry("400x150")
         progress_window.resizable(False, False)
         progress_window.configure(bg="#1a1a1f")
         
-        # Centra la finestra
+        # Center window
         progress_window.update_idletasks()
         x = (progress_window.winfo_screenwidth() // 2) - (400 // 2)
         y = (progress_window.winfo_screenheight() // 2) - (150 // 2)
@@ -230,7 +230,7 @@ def install_ffmpeg_with_progress(parent=None):
         # Label
         label = tk.Label(
             progress_window,
-            text="Download FFmpeg in corso...",
+            text="Downloading FFmpeg...",
             font=("SF Pro Display", 14, "bold"),
             bg="#1a1a1f",
             fg="#fafafa"
@@ -240,7 +240,7 @@ def install_ffmpeg_with_progress(parent=None):
         # Status
         status_label = tk.Label(
             progress_window,
-            text="Connessione...",
+            text="Connecting...",
             font=("SF Pro Display", 11),
             bg="#1a1a1f",
             fg="#a1a1aa"
@@ -272,13 +272,13 @@ def install_ffmpeg_with_progress(parent=None):
             success = downloader.download_ffmpeg(update_progress)
             
             if success:
-                status_label.config(text="✅ FFmpeg installato con successo!", fg="#22c55e")
+                status_label.config(text="✅ FFmpeg installed successfully!", fg="#22c55e")
                 progress_window.after(1500, progress_window.destroy)
             else:
-                status_label.config(text="❌ Errore durante l'installazione", fg="#ef4444")
+                status_label.config(text="❌ Installation error", fg="#ef4444")
                 progress_window.after(2000, progress_window.destroy)
         
-        # Avvia installazione in background
+        # Start installation in background
         import threading
         thread = threading.Thread(target=do_install)
         thread.daemon = True
@@ -287,7 +287,7 @@ def install_ffmpeg_with_progress(parent=None):
         if not parent:
             progress_window.mainloop()
         
-        # Verifica risultato
+        # Verify result
         downloader = FFmpegDownloader()
         if downloader.is_ffmpeg_installed():
             return str(downloader.ffmpeg_path), str(downloader.ffprobe_path)
@@ -295,8 +295,8 @@ def install_ffmpeg_with_progress(parent=None):
         return None, None
         
     except Exception as e:
-        logger.exception("Errore durante l'installazione con progresso")
-        # Fallback: installazione silenziosa
+        logger.exception("Error during installation with progress")
+        # Fallback: silent installation
         downloader = FFmpegDownloader()
         if downloader.download_ffmpeg():
             return str(downloader.ffmpeg_path), str(downloader.ffprobe_path)

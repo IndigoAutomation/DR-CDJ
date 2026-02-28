@@ -1,4 +1,4 @@
-"""AudioAnalyzer: estrae metadati dai file audio usando ffprobe."""
+"""AudioAnalyzer: Extracts metadata from audio files using ffprobe."""
 
 import json
 import subprocess
@@ -12,7 +12,7 @@ from dr_cdj.utils import get_ffprobe_path
 
 @dataclass
 class AudioMetadata:
-    """Metadati estratti da un file audio."""
+    """Metadata extracted from an audio file."""
 
     filepath: Path
     filename: str
@@ -28,21 +28,21 @@ class AudioMetadata:
 
     @property
     def sample_rate_khz(self) -> Optional[float]:
-        """Restituisce il sample rate in kHz."""
+        """Return sample rate in kHz."""
         if self.sample_rate:
             return self.sample_rate / 1000
         return None
 
     @property
     def sample_rate_formatted(self) -> str:
-        """Restituisce il sample rate formattato."""
+        """Return formatted sample rate."""
         if self.sample_rate:
             return f"{self.sample_rate / 1000:.1f} kHz"
         return "-"
 
     @property
     def bit_depth_formatted(self) -> str:
-        """Restituisce il bit depth formattato."""
+        """Return formatted bit depth."""
         if self.bit_depth:
             return f"{self.bit_depth}-bit"
         if self.is_float:
@@ -51,7 +51,7 @@ class AudioMetadata:
 
     @property
     def duration_formatted(self) -> str:
-        """Restituisce la durata formattata come MM:SS."""
+        """Return duration formatted as MM:SS."""
         if self.duration is None:
             return "--:--"
         minutes = int(self.duration // 60)
@@ -60,7 +60,7 @@ class AudioMetadata:
 
     @property
     def codec_formatted(self) -> str:
-        """Restituisce il codec formattato per la UI."""
+        """Return codec formatted for UI."""
         codec_map = {
             "MP3": "MP3",
             "AAC": "AAC",
@@ -81,19 +81,19 @@ class AudioMetadata:
 
 
 class AudioAnalyzer:
-    """Analizza file audio usando ffprobe."""
+    """Analyzes audio files using ffprobe."""
 
     def __init__(self, ffprobe_path: str | None = None):
-        """Inizializza l'analyzer.
+        """Initialize analyzer.
         
         Args:
-            ffprobe_path: Path all'eseguibile ffprobe. Se None, usa get_ffprobe_path().
+            ffprobe_path: Path to ffprobe executable. If None, uses get_ffprobe_path().
         """
         self.ffprobe_path = ffprobe_path or get_ffprobe_path()
         self._check_ffprobe()
 
     def _check_ffprobe(self) -> None:
-        """Verifica che ffprobe sia disponibile."""
+        """Verify ffprobe is available."""
         try:
             result = subprocess.run(
                 [self.ffprobe_path, "-version"],
@@ -102,29 +102,29 @@ class AudioAnalyzer:
                 timeout=5,
             )
             if result.returncode != 0:
-                raise RuntimeError("ffprobe non funzionante")
+                raise RuntimeError("ffprobe not working")
         except FileNotFoundError:
             raise RuntimeError(
-                f"ffprobe non trovato: {self.ffprobe_path}\n"
-                "Installa FFmpeg: https://ffmpeg.org/download.html"
+                f"ffprobe not found: {self.ffprobe_path}\n"
+                "Install FFmpeg: https://ffmpeg.org/download.html"
             )
 
     def analyze(self, filepath: Path) -> AudioMetadata:
-        """Analizza un file audio e restituisce i metadati.
+        """Analyze an audio file and return metadata.
         
         Args:
-            filepath: Path al file audio.
+            filepath: Path to audio file.
             
         Returns:
-            AudioMetadata con tutti i metadati estratti.
+            AudioMetadata with all extracted metadata.
             
         Raises:
-            RuntimeError: Se l'analisi fallisce.
+            RuntimeError: If analysis fails.
         """
         filepath = Path(filepath)
         
         if not filepath.exists():
-            raise FileNotFoundError(f"File non trovato: {filepath}")
+            raise FileNotFoundError(f"File not found: {filepath}")
         
         cmd = [
             self.ffprobe_path,
@@ -144,38 +144,38 @@ class AudioAnalyzer:
             )
             
             if result.returncode != 0:
-                stderr = result.stderr.strip() if result.stderr else "Errore sconosciuto"
+                stderr = result.stderr.strip() if result.stderr else "Unknown error"
                 raise RuntimeError(f"ffprobe: {stderr[:100]}")
             
             if not result.stdout.strip():
-                raise RuntimeError("Nessun output da ffprobe")
+                raise RuntimeError("No output from ffprobe")
             
             data = json.loads(result.stdout)
             return self._parse_metadata(filepath, data)
             
         except subprocess.TimeoutExpired:
-            raise RuntimeError(f"Timeout analizzando {filepath.name}")
+            raise RuntimeError(f"Timeout analyzing {filepath.name}")
         except json.JSONDecodeError as e:
-            raise RuntimeError(f"Dati non validi da ffprobe: {str(e)[:50]}")
+            raise RuntimeError(f"Invalid data from ffprobe: {str(e)[:50]}")
         except Exception as e:
-            if "Errore" in str(e):
+            if "Error" in str(e):
                 raise
-            raise RuntimeError(f"Errore analisi: {str(e)[:50]}")
+            raise RuntimeError(f"Analysis error: {str(e)[:50]}")
 
     def _parse_metadata(self, filepath: Path, data: dict) -> AudioMetadata:
-        """Estrae i metadati dal JSON di ffprobe.
+        """Extract metadata from ffprobe JSON.
         
         Args:
-            filepath: Path al file.
-            data: Dati JSON da ffprobe.
+            filepath: Path to file.
+            data: JSON data from ffprobe.
             
         Returns:
-            AudioMetadata estratto.
+            Extracted AudioMetadata.
         """
         format_info = data.get("format", {}) if data else {}
         streams = data.get("streams", []) if data else []
         
-        # Trova il primo stream audio
+        # Find first audio stream
         audio_stream = None
         for stream in streams:
             if stream and stream.get("codec_type") == "audio":
@@ -183,9 +183,9 @@ class AudioAnalyzer:
                 break
         
         if not audio_stream:
-            raise RuntimeError("Nessuno stream audio trovato")
+            raise RuntimeError("No audio stream found")
         
-        # Estrai codec e formato
+        # Extract codec and format
         codec = (audio_stream.get("codec_name", "unknown") or "unknown").upper()
         format_name = (format_info.get("format_name", "unknown") or "unknown").upper()
         
@@ -198,21 +198,21 @@ class AudioAnalyzer:
             except (ValueError, TypeError):
                 sample_rate = None
         
-        # Bit depth - con gestione robusta degli errori
+        # Bit depth - with robust error handling
         bit_depth = None
         try:
-            # Prova bits_per_sample
+            # Try bits_per_sample
             bps = audio_stream.get("bits_per_sample")
             if bps and bps != 0:
                 bit_depth = int(bps)
             
-            # Se non trovato, prova bits_per_raw_sample
+            # If not found, try bits_per_raw_sample
             if bit_depth is None:
                 bprs = audio_stream.get("bits_per_raw_sample")
                 if bprs and bprs != 0:
                     bit_depth = int(bprs)
             
-            # Per FLAC e altri formati lossless, estrai da sample_fmt
+            # For FLAC and other lossless formats, extract from sample_fmt
             if bit_depth is None:
                 sample_fmt = audio_stream.get("sample_fmt", "") or ""
                 sample_fmt = str(sample_fmt).lower()
@@ -230,7 +230,7 @@ class AudioAnalyzer:
         except (ValueError, TypeError, AttributeError):
             bit_depth = None
         
-        # Canali
+        # Channels
         channels = 2
         try:
             ch = audio_stream.get("channels")
@@ -248,7 +248,7 @@ class AudioAnalyzer:
         except (ValueError, TypeError):
             bitrate = None
         
-        # Durata
+        # Duration
         duration = None
         try:
             dur = format_info.get("duration") or audio_stream.get("duration")
@@ -257,7 +257,7 @@ class AudioAnalyzer:
         except (ValueError, TypeError):
             duration = None
         
-        # Verifica se è float
+        # Check if float
         is_float = False
         try:
             sample_fmt = audio_stream.get("sample_fmt", "") or ""
@@ -265,7 +265,7 @@ class AudioAnalyzer:
         except (AttributeError, TypeError):
             pass
         
-        # Verifica se è lossy (basato sul codec)
+        # Check if lossy (based on codec)
         lossy_codecs = {"MP3", "AAC", "VORBIS", "OPUS", "WMAV2", "WMA", "WMAPRO"}
         is_lossy = codec in lossy_codecs
         if not is_lossy:
@@ -287,13 +287,13 @@ class AudioAnalyzer:
         )
 
     def analyze_batch(self, filepaths: list[Path]) -> list[tuple[Path, Optional[AudioMetadata], Optional[str]]]:
-        """Analizza batch di file.
+        """Analyze batch of files.
         
         Args:
-            filepaths: Lista di path ai file.
+            filepaths: List of file paths.
             
         Returns:
-            Lista di tuple (path, metadata, error_message).
+            List of tuples (path, metadata, error_message).
         """
         results = []
         for filepath in filepaths:

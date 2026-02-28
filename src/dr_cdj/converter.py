@@ -1,4 +1,4 @@
-"""AudioConverter: converte file audio usando FFmpeg con supporto multi-profilo."""
+"""AudioConverter: Converts audio files using FFmpeg with multi-profile support."""
 
 import shutil
 import subprocess
@@ -15,7 +15,7 @@ from dr_cdj.utils import get_ffmpeg_path
 
 @dataclass
 class ConversionResult:
-    """Risultato di una conversione."""
+    """Conversion result."""
 
     source_path: Path
     output_path: Optional[Path]
@@ -25,7 +25,7 @@ class ConversionResult:
 
 
 class AudioConverter:
-    """Converte file audio usando FFmpeg."""
+    """Converts audio files using FFmpeg."""
 
     def __init__(
         self,
@@ -33,12 +33,12 @@ class AudioConverter:
         max_workers: int = 2,
         output_suffix: str = "_CDJ",
     ):
-        """Inizializza il converter.
+        """Initialize converter.
         
         Args:
-            ffmpeg_path: Path all'eseguibile ffmpeg. Se None, usa get_ffmpeg_path().
-            max_workers: Numero massimo di conversioni parallele.
-            output_suffix: Suffix aggiunto ai file convertiti.
+            ffmpeg_path: Path to ffmpeg executable. If None, uses get_ffmpeg_path().
+            max_workers: Maximum number of parallel conversions.
+            output_suffix: Suffix added to converted files.
         """
         self.ffmpeg_path = ffmpeg_path or get_ffmpeg_path()
         self.max_workers = max(max_workers, 1)
@@ -46,7 +46,7 @@ class AudioConverter:
         self._check_ffmpeg()
 
     def _check_ffmpeg(self) -> None:
-        """Verifica che ffmpeg sia disponibile."""
+        """Verify ffmpeg is available."""
         try:
             result = subprocess.run(
                 [self.ffmpeg_path, "-version"],
@@ -55,38 +55,38 @@ class AudioConverter:
                 timeout=5,
             )
             if result.returncode != 0:
-                raise RuntimeError("ffmpeg non funzionante")
+                raise RuntimeError("ffmpeg not working")
         except FileNotFoundError:
             raise RuntimeError(
-                f"ffmpeg non trovato: {self.ffmpeg_path}\n"
-                "Installa FFmpeg: https://ffmpeg.org/download.html"
+                f"ffmpeg not found: {self.ffmpeg_path}\n"
+                "Install FFmpeg: https://ffmpeg.org/download.html"
             )
 
     def _build_output_path(
         self, source_path: Path, plan: ConversionPlan, output_dir: Optional[Path] = None
     ) -> Path:
-        """Costruisce il path di output.
+        """Build output path.
         
         Args:
-            source_path: Path del file sorgente.
-            plan: Piano di conversione.
-            output_dir: Directory di output (default: stessa del sorgente/CDJ_Ready).
+            source_path: Source file path.
+            plan: Conversion plan.
+            output_dir: Output directory (default: same as source/CDJ_Ready).
             
         Returns:
-            Path per il file convertito.
+            Path for converted file.
         """
         if output_dir is None:
             output_dir = source_path.parent / "CDJ_Ready"
         
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Estensione basata sul formato output
+        # Extension based on output format
         if plan.output_format == "AIFF":
             ext = ".aiff"
         else:
             ext = ".wav"
         
-        # Nome file: originale + suffix + estensione
+        # Filename: original + suffix + extension
         stem = source_path.stem
         if not stem.endswith(self.output_suffix):
             output_name = f"{stem}{self.output_suffix}{ext}"
@@ -101,24 +101,24 @@ class AudioConverter:
         output_path: Path,
         plan: ConversionPlan,
     ) -> list[str]:
-        """Costruisce gli argomenti per ffmpeg.
+        """Build ffmpeg arguments.
         
         Args:
-            source_path: Path del file sorgente.
-            output_path: Path di destinazione.
-            plan: Piano di conversione.
+            source_path: Source file path.
+            output_path: Destination path.
+            plan: Conversion plan.
             
         Returns:
-            Lista di argomenti per subprocess.
+            List of arguments for subprocess.
         """
         cmd = [
             self.ffmpeg_path,
-            "-y",  # Sovrascrivi file esistenti
+            "-y",  # Overwrite existing files
             "-i", str(source_path),  # Input
             "-vn",  # No video
         ]
         
-        # Codec audio
+        # Audio codec
         if plan.output_format == "AIFF":
             cmd.extend(["-c:a", "pcm_s16be" if plan.target_bit_depth == 16 else "pcm_s24be"])
         else:  # WAV
@@ -133,7 +133,7 @@ class AudioConverter:
         else:
             cmd.extend(["-sample_fmt", "s32"])  # ffmpeg usa s32 per 24-bit packed
         
-        # Metadati: copia se possibile
+        # Metadata: copy if possible
         cmd.extend(["-map_metadata", "0"])
         
         # Output
@@ -147,12 +147,12 @@ class AudioConverter:
         output_dir: Optional[Path] = None,
         progress_callback: Optional[Callable[[float], None]] = None,
     ) -> ConversionResult:
-        """Converte un singolo file.
+        """Convert a single file.
         
         Args:
-            result: Risultato compatibilità con piano di conversione.
-            output_dir: Directory di output opzionale.
-            progress_callback: Callback per progresso (0.0 - 1.0).
+            result: Compatibility result with conversion plan.
+            output_dir: Optional output directory.
+            progress_callback: Progress callback (0.0 - 1.0).
             
         Returns:
             ConversionResult.
@@ -162,19 +162,19 @@ class AudioConverter:
                 source_path=result.filepath,
                 output_path=None,
                 success=False,
-                message="Nessun piano di conversione disponibile",
+                message="No conversion plan available",
             )
         
         source_path = result.filepath
         plan = result.conversion_plan
         
-        # Se è già compatibile, non convertire
+        # If already compatible, don't convert
         if result.is_compatible:
             return ConversionResult(
                 source_path=source_path,
                 output_path=source_path,
                 success=True,
-                message="File già compatibile, nessuna conversione necessaria",
+                message="File already compatible, no conversion needed",
             )
         
         try:
@@ -189,19 +189,19 @@ class AudioConverter:
                 text=True,
             )
             
-            # Leggi stderr per progresso (opzionale)
+            # Read stderr for progress (optional)
             stderr_output = []
             if process.stderr:
                 for line in process.stderr:
                     stderr_output.append(line)
-                    # Qui si potrebbe parsare il progresso
+                    # Progress parsing could be done here
                     if progress_callback:
-                        pass  # Parsing complesso, skip per ora
+                        pass  # Complex parsing, skip for now
             
             returncode = process.wait(timeout=FFMPEG_TIMEOUT)
             
             if returncode != 0:
-                error_msg = "".join(stderr_output[-10:])  # Ultime 10 linee
+                error_msg = "".join(stderr_output[-10:])  # Last 10 lines
                 return ConversionResult(
                     source_path=source_path,
                     output_path=None,
@@ -213,7 +213,7 @@ class AudioConverter:
                 source_path=source_path,
                 output_path=output_path,
                 success=True,
-                message=f"Convertito in {plan.output_format} {plan.target_bit_depth}bit/{plan.target_sample_rate/1000:.1f}kHz",
+                message=f"Converted to {plan.output_format} {plan.target_bit_depth}bit/{plan.target_sample_rate/1000:.1f}kHz",
             )
             
         except subprocess.TimeoutExpired:
@@ -222,14 +222,14 @@ class AudioConverter:
                 source_path=source_path,
                 output_path=None,
                 success=False,
-                message="Timeout durante la conversione",
+                message="Conversion timeout",
             )
         except Exception as e:
             return ConversionResult(
                 source_path=source_path,
                 output_path=None,
                 success=False,
-                message=f"Errore: {str(e)[:100]}",
+                message=f"Error: {str(e)[:100]}",
             )
 
     def convert_batch(
@@ -238,17 +238,17 @@ class AudioConverter:
         output_dir: Optional[Path] = None,
         progress_callback: Optional[Callable[[int, int], None]] = None,
     ) -> list[ConversionResult]:
-        """Converte batch di file in parallelo.
+        """Convert batch of files in parallel.
         
         Args:
-            results: Lista di risultati compatibilità.
-            output_dir: Directory di output opzionale.
+            results: List of compatibility results.
+            output_dir: Optional output directory.
             progress_callback: Callback(current, total).
             
         Returns:
-            Lista di ConversionResult.
+            List of ConversionResult.
         """
-        # Filtra solo quelli che necessitano conversione
+        # Filter only those needing conversion
         to_convert = [r for r in results if r.needs_conversion]
         
         if not to_convert:
@@ -259,13 +259,13 @@ class AudioConverter:
         total = len(to_convert)
         
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit tutti i task
+            # Submit all tasks
             future_to_result = {
                 executor.submit(self.convert, r, output_dir): r
                 for r in to_convert
             }
             
-            # Raccogli risultati
+            # Collect results
             for future in as_completed(future_to_result):
                 result = future.result()
                 conversion_results.append(result)
@@ -279,13 +279,13 @@ class AudioConverter:
     def get_conversion_summary(
         self, results: list[ConversionResult]
     ) -> dict:
-        """Genera riepilogo conversioni.
+        """Generate conversion summary.
         
         Args:
-            results: Lista di risultati conversione.
+            results: List of conversion results.
             
         Returns:
-            Dict con statistiche.
+            Dict with statistics.
         """
         successful = sum(1 for r in results if r.success)
         failed = len(results) - successful

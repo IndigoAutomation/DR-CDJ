@@ -1,4 +1,4 @@
-"""CompatibilityEngine: motore di compatibilità multi-profilo per CDJ."""
+"""CompatibilityEngine: Multi-profile compatibility engine for CDJ."""
 
 from dataclasses import dataclass
 from enum import Enum
@@ -19,7 +19,7 @@ from dr_cdj.config import (
 
 
 class CompatibilityStatus(Enum):
-    """Stati di compatibilità possibili."""
+    """Possible compatibility states."""
 
     COMPATIBLE = "compatible"
     CONVERTIBLE_LOSSLESS = "convertible_lossless"
@@ -30,7 +30,7 @@ class CompatibilityStatus(Enum):
 
 @dataclass
 class ConversionPlan:
-    """Piano di conversione ottimale."""
+    """Optimal conversion plan."""
 
     output_format: str
     target_sample_rate: int
@@ -40,7 +40,7 @@ class ConversionPlan:
 
 @dataclass
 class CompatibilityResult:
-    """Risultato della verifica di compatibilità."""
+    """Compatibility check result."""
 
     filepath: Path
     metadata: AudioMetadata
@@ -52,12 +52,12 @@ class CompatibilityResult:
 
     @property
     def is_compatible(self) -> bool:
-        """True se il file è già compatibile."""
+        """True if file is already compatible."""
         return self.status == CompatibilityStatus.COMPATIBLE
 
     @property
     def needs_conversion(self) -> bool:
-        """True se il file necessita conversione."""
+        """True if file needs conversion."""
         return self.status in (
             CompatibilityStatus.CONVERTIBLE_LOSSLESS,
             CompatibilityStatus.CONVERTIBLE_LOSSY,
@@ -65,7 +65,7 @@ class CompatibilityResult:
 
     @property
     def status_icon(self) -> str:
-        """Icona rappresentativa dello stato."""
+        """Status representative icon."""
         icons = {
             CompatibilityStatus.COMPATIBLE: "✓",
             CompatibilityStatus.CONVERTIBLE_LOSSLESS: "⇄",
@@ -77,7 +77,7 @@ class CompatibilityResult:
 
     @property
     def status_color(self) -> str:
-        """Colore associato allo stato."""
+        """Color associated with status."""
         from dr_cdj.config import COLORS
         colors = {
             CompatibilityStatus.COMPATIBLE: COLORS["compatible"],
@@ -90,7 +90,7 @@ class CompatibilityResult:
 
     @property
     def status_bg_color(self) -> str:
-        """Colore di sfondo associato allo stato."""
+        """Background color associated with status."""
         from dr_cdj.config import COLORS
         colors = {
             CompatibilityStatus.COMPATIBLE: COLORS["compatible_bg"],
@@ -103,25 +103,25 @@ class CompatibilityResult:
 
 
 class CompatibilityEngine:
-    """Motore di compatibilità multi-profilo per CDJ."""
+    """Multi-profile compatibility engine for CDJ."""
 
     def __init__(self, profile_id: Optional[str] = None):
-        """Inizializza il motore di compatibilità.
+        """Initialize compatibility engine.
         
         Args:
-            profile_id: ID del profilo CDJ da usare. Se None, usa il default.
+            profile_id: CDJ profile ID to use. If None, uses default.
         """
         self.profile_id = profile_id or DEFAULT_PROFILE
         self.profile = CDJ_PROFILES.get(self.profile_id, CDJ_PROFILES[DEFAULT_PROFILE])
 
     def set_profile(self, profile_id: str) -> bool:
-        """Cambia il profilo CDJ.
+        """Change CDJ profile.
         
         Args:
-            profile_id: ID del nuovo profilo.
+            profile_id: New profile ID.
             
         Returns:
-            True se il profilo è stato cambiato, False altrimenti.
+            True if profile was changed, False otherwise.
         """
         if profile_id in CDJ_PROFILES:
             self.profile_id = profile_id
@@ -130,7 +130,7 @@ class CompatibilityEngine:
         return False
 
     def get_available_profiles(self) -> dict:
-        """Restituisce i profili disponibili."""
+        """Return available profiles."""
         return {
             pid: {
                 "name": p.name,
@@ -142,13 +142,13 @@ class CompatibilityEngine:
         }
 
     def check(self, metadata: AudioMetadata) -> CompatibilityResult:
-        """Verifica la compatibilità di un file audio.
+        """Check audio file compatibility.
         
         Args:
-            metadata: Metadati del file audio.
+            metadata: Audio file metadata.
             
         Returns:
-            CompatibilityResult con verdetto e piano di conversione.
+            CompatibilityResult with verdict and conversion plan.
         """
         try:
             return self._evaluate(metadata)
@@ -157,13 +157,13 @@ class CompatibilityEngine:
                 filepath=metadata.filepath,
                 metadata=metadata,
                 status=CompatibilityStatus.ERROR,
-                message=f"Errore: {str(e)[:50]}",
+                message=f"Error: {str(e)[:50]}",
                 profile_id=self.profile_id,
                 profile_name=self.profile.name,
             )
 
     def _evaluate(self, metadata: AudioMetadata) -> CompatibilityResult:
-        """Logica di valutazione compatibilità."""
+        """Compatibility evaluation logic."""
         filepath = metadata.filepath
         codec = metadata.codec
         sample_rate = metadata.sample_rate
@@ -190,13 +190,13 @@ class CompatibilityEngine:
                 filepath=filepath,
                 metadata=metadata,
                 status=CompatibilityStatus.INCOMPATIBLE,
-                message=f"Formato {format_category} non supportato",
+                message=f"{format_category} format not supported",
                 profile_id=self.profile_id,
                 profile_name=self.profile.name,
             )
 
     def _detect_format_category(self, metadata: AudioMetadata) -> str:
-        """Rileva la categoria del formato dal codec ed estensione."""
+        """Detect format category from codec and extension."""
         codec = metadata.codec.lower() if metadata.codec else ""
         ext = metadata.filepath.suffix.lower() if metadata.filepath else ""
         
@@ -231,7 +231,7 @@ class CompatibilityEngine:
         bit_depth: Optional[int],
         is_float: bool,
     ) -> CompatibilityResult:
-        """Verifica compatibilità per formato supportato dal profilo."""
+        """Check compatibility for profile-supported format."""
         fmt = self.profile.formats[format_category]
         
         issues = []
@@ -241,17 +241,17 @@ class CompatibilityEngine:
             if sample_rate > self.profile.max_sample_rate:
                 issues.append(f"{sample_rate/1000:.1f}kHz → max {self.profile.max_sample_rate/1000:.1f}kHz")
             else:
-                issues.append(f"{sample_rate/1000:.1f}kHz non supportato")
+                issues.append(f"{sample_rate/1000:.1f}kHz not supported")
         
         # Verifica bit depth (solo per formati PCM)
         if bit_depth and fmt.bit_depths:
             if bit_depth not in fmt.bit_depths:
                 if is_float:
-                    issues.append("32-bit float non supportato")
+                    issues.append("32-bit float not supported")
                 elif bit_depth > self.profile.max_bit_depth:
-                    issues.append(f"{bit_depth}-bit troppo alto")
+                    issues.append(f"{bit_depth}-bit too high")
                 else:
-                    issues.append(f"{bit_depth}-bit non supportato")
+                    issues.append(f"{bit_depth}-bit not supported")
         
         if issues:
             # Ha problemi ma è convertibile lossless
@@ -271,7 +271,7 @@ class CompatibilityEngine:
             filepath=filepath,
             metadata=metadata,
             status=CompatibilityStatus.COMPATIBLE,
-            message=f"Pronto per {self.profile.name}",
+            message=f"Ready for {self.profile.name}",
             profile_id=self.profile_id,
             profile_name=self.profile.name,
         )
@@ -283,15 +283,15 @@ class CompatibilityEngine:
         format_category: str,
         is_lossy: bool,
     ) -> CompatibilityResult:
-        """Verifica per formato non supportato nativamente (richiede conversione)."""
+        """Check for natively unsupported format (requires conversion)."""
         plan = self._create_conversion_plan(metadata, lossless_source=not is_lossy)
         
         if is_lossy:
             status = CompatibilityStatus.CONVERTIBLE_LOSSY
-            message = f"{format_category} convertibile (sorgente lossy)"
+            message = f"{format_category} convertible (lossy source)"
         else:
             status = CompatibilityStatus.CONVERTIBLE_LOSSLESS
-            message = f"{format_category} → {plan.output_format} senza perdita"
+            message = f"{format_category} → {plan.output_format} lossless"
         
         return CompatibilityResult(
             filepath=filepath,
@@ -306,7 +306,7 @@ class CompatibilityEngine:
     def _create_conversion_plan(
         self, metadata: AudioMetadata, lossless_source: bool
     ) -> ConversionPlan:
-        """Crea il piano di conversione ottimale per il profilo attuale."""
+        """Create optimal conversion plan for current profile."""
         sample_rate = metadata.sample_rate or 44100
         bit_depth = metadata.bit_depth or 16
         
@@ -339,7 +339,7 @@ class CompatibilityEngine:
             # Per sorgenti lossy, 16/44.1 è sufficiente
             target_sample_rate = 44100
             target_bit_depth = 16
-            reason = "Da lossy: 16bit/44.1kHz"
+            reason = "From lossy: 16bit/44.1kHz"
         
         # Scegli formato output (preferisci WAV come standard)
         if metadata.codec and metadata.codec.lower() in ("aiff", "pcm_s16be", "pcm_s24be"):

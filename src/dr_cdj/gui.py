@@ -1,4 +1,4 @@
-"""GUI moderna per CDJ-Check con info specifiche CDJ e massima qualità."""
+"""Modern GUI for Dr.CDJ — Audio Compatibility Checker & Converter."""
 
 import sys
 import tkinter as tk
@@ -11,8 +11,8 @@ try:
     import customtkinter as ctk
     from tkinterdnd2 import DND_FILES, TkinterDnD
 except ImportError:
-    print("Errore: customtkinter e tkinterdnd2 sono richiesti.")
-    print("Installa con: pip install customtkinter tkinterdnd2")
+    print("Error: customtkinter and tkinterdnd2 are required.")
+    print("Install with: pip install customtkinter tkinterdnd2")
     sys.exit(1)
 
 from dr_cdj.analyzer import AudioAnalyzer, AudioMetadata
@@ -23,7 +23,7 @@ from dr_cdj.converter import AudioConverter, ConversionResult
 
 @dataclass
 class ConversionSettings:
-    """Impostazioni personalizzate per la conversione."""
+    """Custom settings for conversion."""
     output_format: str = "WAV"  # WAV, AIFF
     sample_rate: int = 48000    # 44100, 48000, 88200, 96000
     bit_depth: int = 24         # 16, 24
@@ -31,7 +31,7 @@ class ConversionSettings:
 
 
 class ModernTooltip:
-    """Tooltip moderno che appare al hover."""
+    """Modern tooltip that appears on hover."""
     
     def __init__(self, widget, text: str, delay: int = 500):
         self.widget = widget
@@ -83,7 +83,7 @@ class ModernTooltip:
 
 
 class FileCard(ctk.CTkFrame):
-    """Card moderna per visualizzare un file audio."""
+    """Modern card for displaying an audio file."""
 
     def __init__(
         self,
@@ -99,10 +99,10 @@ class FileCard(ctk.CTkFrame):
         self.on_remove = on_remove
         self.on_convert_single = on_convert_single
         
-        # Stile in base allo stato
+        # Style based on status
         self._setup_appearance()
         
-        # Layout principale
+        # Main layout
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
         
@@ -111,20 +111,20 @@ class FileCard(ctk.CTkFrame):
         self.content.grid(row=0, column=0, sticky="ew", padx=16, pady=12)
         self.content.grid_columnconfigure(1, weight=1)
         
-        # Icona stato con cerchio colorato
+        # Status icon with colored circle
         self._setup_status_icon()
         
-        # Info file
+        # File info
         self._setup_file_info()
         
-        # Dettagli tecnici
+        # Technical details
         self._setup_tech_specs()
         
-        # Azioni (convert singolo)
+        # Actions (single convert)
         self._setup_actions()
     
     def _setup_appearance(self):
-        """Configura l'aspetto in base allo stato."""
+        """Configure appearance based on status."""
         border_color = self.result.status_color
         bg_color = self.result.status_bg_color
         
@@ -136,7 +136,7 @@ class FileCard(ctk.CTkFrame):
         )
     
     def _setup_status_icon(self):
-        """Crea l'icona di stato."""
+        """Create status icon."""
         status_colors = {
             CompatibilityStatus.COMPATIBLE: (COLORS["compatible"], "✓"),
             CompatibilityStatus.CONVERTIBLE_LOSSLESS: (COLORS["convertible_lossless"], "⇄"),
@@ -147,7 +147,7 @@ class FileCard(ctk.CTkFrame):
         
         color, icon = status_colors.get(self.result.status, (COLORS["text_secondary"], "?"))
         
-        # Cerchio con icona
+        # Circle with icon
         self.icon_frame = ctk.CTkFrame(
             self.content,
             width=36,
@@ -169,8 +169,8 @@ class FileCard(ctk.CTkFrame):
         self.icon_label.place(relx=0.5, rely=0.5, anchor="center")
     
     def _setup_file_info(self):
-        """Configura le informazioni del file."""
-        # Nome file
+        """Configure file information."""
+        # Filename
         filename = self.result.metadata.filename if self.result.metadata else self.result.filepath.name
         display_name = filename[:45] + "..." if len(filename) > 45 else filename
         
@@ -183,7 +183,7 @@ class FileCard(ctk.CTkFrame):
         )
         self.name_label.grid(row=0, column=1, sticky="w")
         
-        # Messaggio stato
+        # Status message
         status_text = self.result.message
         if len(status_text) > 60:
             status_text = status_text[:57] + "..."
@@ -198,11 +198,11 @@ class FileCard(ctk.CTkFrame):
         self.status_label.grid(row=1, column=1, sticky="w", pady=(2, 0))
     
     def _setup_tech_specs(self):
-        """Configura le specifiche tecniche."""
+        """Configure technical specifications."""
         specs_frame = ctk.CTkFrame(self.content, fg_color="transparent")
         specs_frame.grid(row=0, column=2, rowspan=2, padx=(20, 0), sticky="e")
         
-        # Formato
+        # Format
         if self.result.metadata:
             codec = self.result.metadata.codec_formatted
             sr = self.result.metadata.sample_rate_formatted
@@ -220,8 +220,8 @@ class FileCard(ctk.CTkFrame):
         )
         self.specs_label.pack()
         
-        # Profilo
-        profile_text = f"per {self.result.profile_name}"
+        # Profile
+        profile_text = f"for {self.result.profile_name}"
         self.profile_label = ctk.CTkLabel(
             specs_frame,
             text=profile_text,
@@ -231,11 +231,11 @@ class FileCard(ctk.CTkFrame):
         self.profile_label.pack()
     
     def _setup_actions(self):
-        """Configura le azioni disponibili."""
+        """Configure available actions."""
         actions_frame = ctk.CTkFrame(self, fg_color="transparent")
         actions_frame.grid(row=0, column=1, padx=(0, 12), pady=12, sticky="ne")
         
-        # Pulsante converti singolo (solo per file convertibili)
+        # Convert single button (only for convertible files)
         if self.result.needs_conversion:
             self.convert_btn = ctk.CTkButton(
                 actions_frame,
@@ -250,9 +250,9 @@ class FileCard(ctk.CTkFrame):
                 command=self._on_convert_click,
             )
             self.convert_btn.pack(pady=(0, 4))
-            ModernTooltip(self.convert_btn, "Converti questo file")
+            ModernTooltip(self.convert_btn, "Convert this file")
         
-        # Pulsante rimuovi
+        # Remove button
         self.remove_btn = ctk.CTkButton(
             actions_frame,
             text="✕",
@@ -266,41 +266,41 @@ class FileCard(ctk.CTkFrame):
             command=self._on_remove_click,
         )
         self.remove_btn.pack()
-        ModernTooltip(self.remove_btn, "Rimuovi dalla lista")
+        ModernTooltip(self.remove_btn, "Remove from list")
     
     def _on_convert_click(self):
-        """Callback per conversione singolo file."""
+        """Callback for single file conversion."""
         if self.on_convert_single:
             self.on_convert_single(self.result)
     
     def _on_remove_click(self):
-        """Callback per rimozione file."""
+        """Callback for file removal."""
         if self.on_remove:
             self.on_remove(self.result)
 
 
 class ProfileInfoPanel(ctk.CTkFrame):
-    """Pannello informazioni profilo CDJ."""
+    """CDJ profile info panel."""
 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         
         self.configure(fg_color=COLORS["surface"], corner_radius=12)
         
-        # Titolo
+        # Title
         self.title = ctk.CTkLabel(
             self,
-            text="📋 Specifiche Player",
+            text="📋 Player Specifications",
             font=("SF Pro Display", 14, "bold"),
             text_color=COLORS["text"],
         )
         self.title.pack(anchor="w", padx=16, pady=(12, 8))
         
-        # Container info
+        # Info container
         self.info_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.info_frame.pack(fill="x", padx=16, pady=(0, 12))
         
-        # Label per le info
+        # Labels for info
         self.name_label = ctk.CTkLabel(
             self.info_frame,
             text="",
@@ -334,7 +334,7 @@ class ProfileInfoPanel(ctk.CTkFrame):
         self.formats_label.pack(anchor="w", pady=(4, 0))
     
     def update_info(self, profile_id: str):
-        """Aggiorna le informazioni del profilo."""
+        """Update profile information."""
         profile = CDJ_PROFILES.get(profile_id)
         if not profile:
             return
@@ -345,15 +345,15 @@ class ProfileInfoPanel(ctk.CTkFrame):
         max_sr = profile.max_sample_rate / 1000
         max_bd = profile.max_bit_depth
         self.max_quality_label.configure(
-            text=f"🎯 Massima Qualità Supportata: {max_bd}-bit / {max_sr:.1f} kHz"
+            text=f"🎯 Max Quality: {max_bd}-bit / {max_sr:.1f} kHz"
         )
         
-        formats_text = "Formati nativi: " + ", ".join(profile.formats.keys())
+        formats_text = "Native formats: " + ", ".join(profile.formats.keys())
         self.formats_label.configure(text=formats_text)
 
 
 class ConversionSettingsPanel(ctk.CTkFrame):
-    """Pannello impostazioni conversione."""
+    """Conversion settings panel."""
 
     def __init__(self, master, settings: ConversionSettings, on_change: callable, **kwargs):
         super().__init__(master, **kwargs)
@@ -363,20 +363,20 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         
         self.configure(fg_color=COLORS["surface"], corner_radius=12)
         
-        # Titolo
+        # Title
         self.title = ctk.CTkLabel(
             self,
-            text="⚙️ Impostazioni Conversione",
+            text="⚙️ Conversion Settings",
             font=("SF Pro Display", 14, "bold"),
             text_color=COLORS["text"],
         )
         self.title.pack(anchor="w", padx=16, pady=(12, 8))
         
-        # Container per i controlli
+        # Controls container
         self.controls_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.controls_frame.pack(fill="x", padx=16, pady=(0, 12))
         
-        # Formato output
+        # Output format
         self._setup_format_selector()
         
         # Sample rate
@@ -385,20 +385,20 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         # Bit depth
         self._setup_bit_depth_selector()
         
-        # Cartella output
+        # Output folder
         self._setup_output_dir_selector()
         
-        # Info massima qualità
+        # Max quality info
         self._setup_quality_info()
     
     def _setup_format_selector(self):
-        """Selettore formato output."""
+        """Output format selector."""
         frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         frame.pack(fill="x", pady=4)
         
         label = ctk.CTkLabel(
             frame,
-            text="Formato:",
+            text="Format:",
             font=("SF Pro Display", 12),
             text_color=COLORS["text_secondary"],
             width=80,
@@ -423,7 +423,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
             rb.pack(side="left", padx=(8, 0))
     
     def _setup_sample_rate_selector(self):
-        """Selettore sample rate."""
+        """Sample rate selector."""
         frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         frame.pack(fill="x", pady=4)
         
@@ -454,7 +454,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
             rb.pack(side="left", padx=(4, 0))
     
     def _setup_bit_depth_selector(self):
-        """Selettore bit depth."""
+        """Bit depth selector."""
         frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         frame.pack(fill="x", pady=4)
         
@@ -485,13 +485,13 @@ class ConversionSettingsPanel(ctk.CTkFrame):
             rb.pack(side="left", padx=(8, 0))
     
     def _setup_output_dir_selector(self):
-        """Selettore cartella output."""
+        """Output folder selector."""
         frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
         frame.pack(fill="x", pady=4)
         
         label = ctk.CTkLabel(
             frame,
-            text="Destinazione:",
+            text="Destination:",
             font=("SF Pro Display", 12),
             text_color=COLORS["text_secondary"],
             width=80,
@@ -508,7 +508,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         
         self.dir_btn = ctk.CTkButton(
             frame,
-            text="Scegli...",
+            text="Browse...",
             font=("SF Pro Display", 11),
             width=70,
             height=24,
@@ -521,7 +521,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         self.dir_btn.pack(side="right")
     
     def _setup_quality_info(self):
-        """Info qualità consigliata."""
+        """Recommended quality info."""
         self.quality_info_label = ctk.CTkLabel(
             self.controls_frame,
             text="",
@@ -531,30 +531,30 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         self.quality_info_label.pack(anchor="w", pady=(8, 0))
     
     def update_quality_info(self, profile_id: str):
-        """Aggiorna l'info qualità in base al profilo."""
+        """Update quality info based on profile."""
         profile = CDJ_PROFILES.get(profile_id)
         if profile:
             max_sr = profile.max_sample_rate / 1000
             max_bd = profile.max_bit_depth
             self.quality_info_label.configure(
-                text=f"💡 Qualità consigliata per {profile.name}: {max_bd}-bit / {max_sr:.1f} kHz"
+                text=f"💡 Recommended for {profile.name}: {max_bd}-bit / {max_sr:.1f} kHz"
             )
     
     def set_max_quality(self, profile_id: str):
-        """Imposta la massima qualità per il profilo."""
+        """Set maximum quality for the profile."""
         profile = CDJ_PROFILES.get(profile_id)
         if not profile:
             return
         
-        # Imposta bit depth massimo
+        # Set max bit depth
         self.settings.bit_depth = profile.max_bit_depth
         self.bd_var.set(str(profile.max_bit_depth))
         
-        # Imposta sample rate massimo
+        # Set max sample rate
         self.settings.sample_rate = profile.max_sample_rate
         self.sr_var.set(str(profile.max_sample_rate))
         
-        # Aggiorna info
+        # Update info
         self.update_quality_info(profile_id)
         self.on_change()
     
@@ -571,7 +571,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         self.on_change()
     
     def _on_choose_dir(self):
-        dir_path = filedialog.askdirectory(title="Seleziona cartella di destinazione")
+        dir_path = filedialog.askdirectory(title="Select destination folder")
         if dir_path:
             self.settings.output_dir = Path(dir_path)
             display_path = dir_path[:30] + "..." if len(dir_path) > 30 else dir_path
@@ -580,7 +580,7 @@ class ConversionSettingsPanel(ctk.CTkFrame):
 
 
 class ProfileSelector(ctk.CTkFrame):
-    """Selettore profilo CDJ moderno con info popup."""
+    """Modern CDJ profile selector with info popup."""
 
     def __init__(self, master, on_change: callable, **kwargs):
         super().__init__(master, **kwargs)
@@ -592,13 +592,13 @@ class ProfileSelector(ctk.CTkFrame):
         # Label
         self.label = ctk.CTkLabel(
             self,
-            text="Player Target",
+            text="Target Player",
             font=("SF Pro Display", 11),
             text_color=COLORS["text_muted"],
         )
         self.label.pack(anchor="w")
         
-        # Dropdown container con stile
+        # Dropdown container with style
         self.dropdown_frame = ctk.CTkFrame(
             self,
             fg_color=COLORS["surface"],
@@ -628,7 +628,7 @@ class ProfileSelector(ctk.CTkFrame):
         )
         self.dropdown.pack(padx=2, pady=2)
         
-        # Pulsante info
+        # Info button
         self.info_btn = ctk.CTkButton(
             self,
             text="ℹ️ Info",
@@ -643,29 +643,29 @@ class ProfileSelector(ctk.CTkFrame):
         )
         self.info_btn.pack(anchor="w", pady=(4, 0))
         
-        # Mappa nome -> id
+        # Name -> id mapping
         self._name_to_id = {CDJ_PROFILES[p].name: p for p in profiles}
     
     def _on_select(self, choice):
-        """Callback selezione profilo."""
+        """Profile selection callback."""
         profile_id = self._name_to_id.get(choice)
         if profile_id:
             self.on_change(profile_id)
     
     def _show_info(self):
-        """Mostra info del profilo selezionato."""
+        """Show info for selected profile."""
         profile_id = self.get_selected_id()
         profile = CDJ_PROFILES.get(profile_id)
         if not profile:
             return
         
-        # Crea dialog info
+        # Create info dialog
         dialog = ctk.CTkToplevel(self)
-        dialog.title(f"Info {profile.name}")
+        dialog.title(f"{profile.name} Info")
         dialog.geometry("400x300")
         dialog.configure(fg_color=COLORS["background"])
         
-        # Titolo
+        # Title
         title = ctk.CTkLabel(
             dialog,
             text=f"📀 {profile.name}",
@@ -675,12 +675,12 @@ class ProfileSelector(ctk.CTkFrame):
         title.pack(pady=(20, 10))
         
         # Info
-        info_text = f"Anno: {profile.year}\n\n"
+        info_text = f"Year: {profile.year}\n\n"
         info_text += f"{profile.description}\n\n"
-        info_text += f"Massima Qualità:\n"
-        info_text += f"  • Sample Rate: fino a {profile.max_sample_rate/1000:.1f} kHz\n"
-        info_text += f"  • Bit Depth: fino a {profile.max_bit_depth}-bit\n\n"
-        info_text += f"Formati supportati:\n  • "
+        info_text += f"Maximum Quality:\n"
+        info_text += f"  • Sample Rate: up to {profile.max_sample_rate/1000:.1f} kHz\n"
+        info_text += f"  • Bit Depth: up to {profile.max_bit_depth}-bit\n\n"
+        info_text += f"Supported formats:\n  • "
         info_text += "\n  • ".join(profile.formats.keys())
         
         info_label = ctk.CTkLabel(
@@ -692,10 +692,10 @@ class ProfileSelector(ctk.CTkFrame):
         )
         info_label.pack(pady=10, padx=20)
         
-        # Pulsante chiudi
+        # Close button
         close_btn = ctk.CTkButton(
             dialog,
-            text="Chiudi",
+            text="Close",
             font=("SF Pro Display", 12),
             width=100,
             fg_color=COLORS["primary"],
@@ -705,49 +705,49 @@ class ProfileSelector(ctk.CTkFrame):
         close_btn.pack(pady=20)
     
     def get_selected_id(self) -> str:
-        """Restituisce l'ID del profilo selezionato."""
+        """Return selected profile ID."""
         name = self.dropdown.get()
         return self._name_to_id.get(name, "cdj_2000_nxs")
     
     def set_profile(self, profile_id: str):
-        """Imposta il profilo selezionato."""
+        """Set selected profile."""
         profile = CDJ_PROFILES.get(profile_id)
         if profile:
             self.dropdown.set(profile.name)
 
 
-class CDJCheckApp:
-    """Applicazione CDJ-Check GUI Moderna."""
+class DrCDJApp:
+    """Dr.CDJ Modern GUI Application."""
 
     def __init__(self):
-        """Inizializza l'applicazione."""
-        # Setup tema dark moderno
+        """Initialize the application."""
+        # Setup modern dark theme
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
         
-        # Finestra principale con supporto drag-and-drop
+        # Main window with drag-and-drop support
         self.root = TkinterDnD.Tk()
-        self.root.title("CDJ-Check — Audio Compatibility Checker")
+        self.root.title("Dr.CDJ — Audio Compatibility Checker")
         self.root.geometry("1200x900")
         self.root.minsize(1100, 800)
         self.root.configure(bg=COLORS["background"])
         
-        # Inizializza engine
+        # Initialize engine
         try:
             self.analyzer = AudioAnalyzer()
             self.compatibility = CompatibilityEngine()
             self.converter = AudioConverter(max_workers=2)
         except RuntimeError as e:
             messagebox.showerror(
-                "FFmpeg non trovato",
-                f"{e}\n\nInstalla FFmpeg per continuare:\n"
+                "FFmpeg Not Found",
+                f"{e}\n\nInstall FFmpeg to continue:\n"
                 "macOS: brew install ffmpeg\n"
                 "Ubuntu: sudo apt-get install ffmpeg\n"
                 "Windows: https://ffmpeg.org/download.html"
             )
             sys.exit(1)
         
-        # Stato
+        # State
         self.results: list[CompatibilityResult] = []
         self.file_items: list[FileCard] = []
         self.is_converting = False
@@ -755,12 +755,12 @@ class CDJCheckApp:
         
         self._setup_ui()
         
-        # Imposta massima qualità per il profilo default
+        # Set max quality for default profile
         self._apply_max_quality()
     
     def _setup_ui(self):
-        """Configura l'interfaccia utente moderna."""
-        # Container principale con padding generoso
+        """Configure modern user interface."""
+        # Main container with generous padding
         self.main_frame = ctk.CTkFrame(
             self.root,
             fg_color=COLORS["background"],
@@ -771,23 +771,23 @@ class CDJCheckApp:
         self.main_frame.grid_columnconfigure(1, weight=1)
         self.main_frame.grid_rowconfigure(3, weight=1)
         
-        # Header con logo e selettore profilo
+        # Header with logo and profile selector
         self._setup_header()
         
-        # Drop zone moderna
+        # Modern drop zone
         self._setup_drop_zone()
         
-        # Pannello laterale (info + impostazioni)
+        # Side panel (info + settings)
         self._setup_side_panel()
         
-        # Lista file
+        # File list
         self._setup_file_list()
         
         # Action bar
         self._setup_action_bar()
     
     def _setup_header(self):
-        """Configura l'header moderno."""
+        """Configure modern header."""
         header = ctk.CTkFrame(
             self.main_frame,
             fg_color="transparent",
@@ -795,11 +795,11 @@ class CDJCheckApp:
         header.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 20))
         header.grid_columnconfigure(0, weight=1)
         
-        # Logo e titolo
+        # Logo and title
         logo_frame = ctk.CTkFrame(header, fg_color="transparent")
         logo_frame.grid(row=0, column=0, sticky="w")
         
-        # Icona/logo
+        # Icon/logo
         self.logo_label = ctk.CTkLabel(
             logo_frame,
             text="◉",
@@ -808,13 +808,13 @@ class CDJCheckApp:
         )
         self.logo_label.pack(side="left")
         
-        # Titolo e sottotitolo
+        # Title and subtitle
         title_frame = ctk.CTkFrame(logo_frame, fg_color="transparent")
         title_frame.pack(side="left", padx=(12, 0))
         
         self.title_label = ctk.CTkLabel(
             title_frame,
-            text="CDJ-Check",
+            text="Dr.CDJ",
             font=("SF Pro Display", 24, "bold"),
             text_color=COLORS["text"],
         )
@@ -828,7 +828,7 @@ class CDJCheckApp:
         )
         self.subtitle_label.pack(anchor="w")
         
-        # Selettore profilo
+        # Profile selector
         self.profile_selector = ProfileSelector(
             header,
             on_change=self._on_profile_change,
@@ -836,7 +836,7 @@ class CDJCheckApp:
         self.profile_selector.grid(row=0, column=1, sticky="e")
     
     def _setup_drop_zone(self):
-        """Configura la drop zone moderna."""
+        """Configure modern drop zone."""
         self.drop_frame = ctk.CTkFrame(
             self.main_frame,
             fg_color=COLORS["surface"],
@@ -848,7 +848,7 @@ class CDJCheckApp:
         self.drop_frame.grid(row=1, column=0, columnspan=2, sticky="new", pady=(0, 16))
         self.drop_frame.grid_propagate(False)
         
-        # Icona
+        # Icon
         self.drop_icon = ctk.CTkLabel(
             self.drop_frame,
             text="↗",
@@ -857,19 +857,19 @@ class CDJCheckApp:
         )
         self.drop_icon.place(relx=0.5, rely=0.30, anchor="center")
         
-        # Testo principale
+        # Main text
         self.drop_label = ctk.CTkLabel(
             self.drop_frame,
-            text="Trascina i file audio qui",
+            text="Drop audio files here",
             font=("SF Pro Display", 14, "bold"),
             text_color=COLORS["text"],
         )
         self.drop_label.place(relx=0.5, rely=0.60, anchor="center")
         
-        # Testo secondario
+        # Secondary text
         self.drop_sublabel = ctk.CTkLabel(
             self.drop_frame,
-            text="oppure clicca per selezionare",
+            text="or click to browse",
             font=("SF Pro Display", 10),
             text_color=COLORS["text_muted"],
         )
@@ -879,7 +879,7 @@ class CDJCheckApp:
         self.drop_frame.drop_target_register(DND_FILES)
         self.drop_frame.dnd_bind("<<Drop>>", self._on_drop)
         
-        # Bind click per file picker
+        # Bind click for file picker
         self.drop_frame.bind("<Button-1>", lambda e: self._on_select_files())
         self.drop_icon.bind("<Button-1>", lambda e: self._on_select_files())
         self.drop_label.bind("<Button-1>", lambda e: self._on_select_files())
@@ -890,15 +890,15 @@ class CDJCheckApp:
         self.drop_frame.bind("<Leave>", self._on_drop_leave)
     
     def _setup_side_panel(self):
-        """Configura il pannello laterale con info e impostazioni."""
+        """Configure side panel with info and settings."""
         self.side_panel = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         self.side_panel.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=(16, 0))
         
-        # Pannello info profilo
+        # Profile info panel
         self.profile_info = ProfileInfoPanel(self.side_panel)
         self.profile_info.pack(fill="x", pady=(0, 12))
         
-        # Pannello impostazioni conversione
+        # Conversion settings panel
         self.settings_panel = ConversionSettingsPanel(
             self.side_panel,
             settings=self.conversion_settings,
@@ -907,8 +907,8 @@ class CDJCheckApp:
         self.settings_panel.pack(fill="x")
     
     def _setup_file_list(self):
-        """Configura la lista file moderna."""
-        # Container principale
+        """Configure modern file list."""
+        # Main container
         self.list_container = ctk.CTkFrame(
             self.main_frame,
             fg_color="transparent",
@@ -917,7 +917,7 @@ class CDJCheckApp:
         self.list_container.grid_columnconfigure(0, weight=1)
         self.list_container.grid_rowconfigure(1, weight=1)
         
-        # Header con contatore
+        # Header with counter
         self.list_header = ctk.CTkFrame(
             self.list_container,
             fg_color="transparent",
@@ -927,7 +927,7 @@ class CDJCheckApp:
         
         self.list_title = ctk.CTkLabel(
             self.list_header,
-            text="File",
+            text="Files",
             font=("SF Pro Display", 14, "bold"),
             text_color=COLORS["text"],
         )
@@ -945,7 +945,7 @@ class CDJCheckApp:
         )
         self.count_badge.pack(side="left", padx=(8, 0))
         
-        # Frame scrollabile per le card
+        # Scrollable frame for cards
         self.list_frame = ctk.CTkScrollableFrame(
             self.list_container,
             fg_color="transparent",
@@ -953,17 +953,17 @@ class CDJCheckApp:
         )
         self.list_frame.grid(row=1, column=0, sticky="nsew")
         
-        # Label vuota
+        # Empty label
         self.empty_label = ctk.CTkLabel(
             self.list_frame,
-            text="Nessun file caricato",
+            text="No files loaded",
             font=("SF Pro Display", 14),
             text_color=COLORS["text_muted"],
         )
         self.empty_label.pack(pady=60)
     
     def _setup_action_bar(self):
-        """Configura la barra azioni moderna."""
+        """Configure modern action bar."""
         action_bar = ctk.CTkFrame(
             self.main_frame,
             fg_color=COLORS["surface"],
@@ -973,7 +973,7 @@ class CDJCheckApp:
         action_bar.grid(row=4, column=0, columnspan=2, sticky="ew")
         action_bar.grid_propagate(False)
         
-        # Info conversione
+        # Conversion info
         self.info_label = ctk.CTkLabel(
             action_bar,
             text="",
@@ -982,10 +982,10 @@ class CDJCheckApp:
         )
         self.info_label.place(relx=0.02, rely=0.5, anchor="w")
         
-        # Pulsante pulisci
+        # Clear button
         self.clear_btn = ctk.CTkButton(
             action_bar,
-            text="Pulisci",
+            text="Clear",
             font=("SF Pro Display", 13, "bold"),
             fg_color=COLORS["surface_light"],
             hover_color=COLORS["incompatible"],
@@ -998,10 +998,10 @@ class CDJCheckApp:
         )
         self.clear_btn.place(relx=0.98, rely=0.5, anchor="e", x=-160)
         
-        # Pulsante converti
+        # Convert button
         self.convert_btn = ctk.CTkButton(
             action_bar,
-            text="Converti",
+            text="Convert",
             font=("SF Pro Display", 14, "bold"),
             fg_color=COLORS["primary"],
             hover_color=COLORS["primary_dark"],
@@ -1014,7 +1014,7 @@ class CDJCheckApp:
         )
         self.convert_btn.place(relx=0.98, rely=0.5, anchor="e", x=-10)
         
-        # Progress bar (nascosta inizialmente)
+        # Progress bar (initially hidden)
         self.progress = ctk.CTkProgressBar(
             action_bar,
             width=200,
@@ -1026,26 +1026,26 @@ class CDJCheckApp:
         self.progress.set(0)
     
     def _apply_max_quality(self):
-        """Applica la massima qualità per il profilo corrente."""
+        """Apply max quality for current profile."""
         profile_id = self.compatibility.profile_id
         self.settings_panel.set_max_quality(profile_id)
         self.profile_info.update_info(profile_id)
     
     def _on_settings_change(self):
-        """Callback cambio impostazioni."""
+        """Settings change callback."""
         pass
     
     def _on_profile_change(self, profile_id: str):
-        """Callback cambio profilo."""
+        """Profile change callback."""
         self.compatibility.set_profile(profile_id)
         
-        # Aggiorna info profilo
+        # Update profile info
         self.profile_info.update_info(profile_id)
         
-        # Imposta massima qualità automaticamente
+        # Set max quality automatically
         self.settings_panel.set_max_quality(profile_id)
         
-        # Rianalizza i file esistenti con il nuovo profilo
+        # Re-analyze existing files with new profile
         if self.results:
             new_results = []
             for result in self.results:
@@ -1063,7 +1063,7 @@ class CDJCheckApp:
             self._update_file_list()
     
     def _on_drop_enter(self, event):
-        """Callback quando il mouse entra nella drop zone."""
+        """Callback when mouse enters drop zone."""
         if not self.is_converting:
             self.drop_frame.configure(
                 border_color=COLORS["primary"],
@@ -1072,7 +1072,7 @@ class CDJCheckApp:
             self.drop_icon.configure(text_color=COLORS["primary_light"])
     
     def _on_drop_leave(self, event):
-        """Callback quando il mouse esce dalla drop zone."""
+        """Callback when mouse leaves drop zone."""
         if not self.is_converting:
             self.drop_frame.configure(
                 border_color=COLORS["border"],
@@ -1081,14 +1081,14 @@ class CDJCheckApp:
             self.drop_icon.configure(text_color=COLORS["primary"])
     
     def _on_drop(self, event):
-        """Callback per drop di file."""
+        """Callback for file drop."""
         if self.is_converting:
             return
         
         # Parse file path(s)
         data = event.data
         
-        # TkinterDnD può restituire path con {} per spazi su macOS
+        # TkinterDnD may return paths with {} for spaces on macOS
         if "{" in data:
             paths = []
             current = ""
@@ -1113,7 +1113,7 @@ class CDJCheckApp:
             if path.is_file():
                 file_paths.append(path)
             elif path.is_dir():
-                # Aggiungi tutti i file audio nella cartella
+                # Add all audio files in folder
                 for ext in [".mp3", ".m4a", ".wav", ".aiff", ".aif", ".flac", ".ogg", ".opus", ".wma"]:
                     file_paths.extend(path.glob(f"*{ext}"))
                     file_paths.extend(path.glob(f"*{ext.upper()}"))
@@ -1122,12 +1122,12 @@ class CDJCheckApp:
             self._analyze_files(file_paths)
     
     def _on_select_files(self):
-        """Callback per selezione file."""
+        """Callback for file selection."""
         if self.is_converting:
             return
         
         file_paths = filedialog.askopenfilenames(
-            title="Seleziona file audio",
+            title="Select audio files",
             filetypes=[
                 ("Audio files", "*.mp3 *.m4a *.wav *.aiff *.aif *.flac *.ogg *.opus *.wma"),
                 ("All files", "*.*"),
@@ -1138,12 +1138,12 @@ class CDJCheckApp:
             self._analyze_files([Path(p) for p in file_paths])
     
     def _analyze_files(self, file_paths: list[Path]):
-        """Analizza i file selezionati."""
-        # Aggiorna UI
-        self.drop_label.configure(text="Analisi in corso...")
+        """Analyze selected files."""
+        # Update UI
+        self.drop_label.configure(text="Analyzing...")
         self.root.update()
         
-        # Analizza
+        # Analyze
         new_results = []
         for path in file_paths:
             try:
@@ -1151,7 +1151,7 @@ class CDJCheckApp:
                 result = self.compatibility.check(metadata)
                 new_results.append(result)
             except Exception as e:
-                # Crea risultato errore
+                # Create error result
                 metadata = AudioMetadata(
                     filepath=path,
                     filename=path.name,
@@ -1176,27 +1176,27 @@ class CDJCheckApp:
                 )
                 new_results.append(result)
         
-        # Aggiungi ai risultati esistenti
+        # Add to existing results
         self.results.extend(new_results)
         self._update_file_list()
         
         # Reset drop zone
-        self.drop_label.configure(text="Trascina i file audio qui")
+        self.drop_label.configure(text="Drop audio files here")
     
     def _update_file_list(self):
-        """Aggiorna la lista file nella UI."""
-        # Rimuovi vecchie card
+        """Update file list in UI."""
+        # Remove old cards
         for item in self.file_items:
             item.destroy()
         self.file_items.clear()
         
-        # Nascondi label vuota se ci sono file
+        # Hide empty label if there are files
         if self.results:
             self.empty_label.pack_forget()
         else:
             self.empty_label.pack(pady=60)
         
-        # Aggiungi nuove card
+        # Add new cards
         for result in self.results:
             card = FileCard(
                 self.list_frame,
@@ -1207,53 +1207,53 @@ class CDJCheckApp:
             card.pack(fill="x", pady=(0, 8))
             self.file_items.append(card)
         
-        # Aggiorna contatore
+        # Update counter
         count = len(self.results)
         self.count_badge.configure(text=str(count))
         
-        # Aggiorna info conversione
+        # Update conversion info
         to_convert = sum(1 for r in self.results if r.needs_conversion)
         compatible = sum(1 for r in self.results if r.is_compatible)
         errors = sum(1 for r in self.results if r.status == CompatibilityStatus.ERROR)
         
         info_parts = []
         if compatible:
-            info_parts.append(f"{compatible} pronti")
+            info_parts.append(f"{compatible} ready")
         if to_convert:
-            info_parts.append(f"{to_convert} da convertire")
+            info_parts.append(f"{to_convert} to convert")
         if errors:
-            info_parts.append(f"{errors} errori")
+            info_parts.append(f"{errors} errors")
         
         self.info_label.configure(text=" • ".join(info_parts) if info_parts else "")
         
-        # Abilita/disabilita pulsanti
+        # Enable/disable buttons
         self.clear_btn.configure(state="normal" if self.results else "disabled")
         
         if to_convert and not self.is_converting:
-            self.convert_btn.configure(state="normal", text=f"Converti ({to_convert})")
+            self.convert_btn.configure(state="normal", text=f"Convert ({to_convert})")
         else:
-            self.convert_btn.configure(state="disabled", text="Converti")
+            self.convert_btn.configure(state="disabled", text="Convert")
     
     def _on_remove_file(self, result: CompatibilityResult):
-        """Rimuove un file dalla lista."""
+        """Remove a file from the list."""
         if result in self.results:
             self.results.remove(result)
             self._update_file_list()
     
     def _on_convert_single(self, result: CompatibilityResult):
-        """Converte un singolo file."""
+        """Convert a single file."""
         if not result.needs_conversion:
             return
         
-        # Crea conversion plan personalizzato
+        # Create custom conversion plan
         custom_plan = ConversionPlan(
             output_format=self.conversion_settings.output_format,
             target_sample_rate=self.conversion_settings.sample_rate,
             target_bit_depth=self.conversion_settings.bit_depth,
-            reason=f"Personalizzato: {self.conversion_settings.bit_depth}bit/{self.conversion_settings.sample_rate/1000:.1f}kHz",
+            reason=f"Custom: {self.conversion_settings.bit_depth}bit/{self.conversion_settings.sample_rate/1000:.1f}kHz",
         )
         
-        # Crea risultato modificato con piano personalizzato
+        # Create modified result with custom plan
         modified_result = CompatibilityResult(
             filepath=result.filepath,
             metadata=result.metadata,
@@ -1264,30 +1264,30 @@ class CDJCheckApp:
             conversion_plan=custom_plan,
         )
         
-        # Converti
+        # Convert
         self.is_converting = True
-        self.convert_btn.configure(state="disabled", text="Conversione...")
+        self.convert_btn.configure(state="disabled", text="Converting...")
         self.clear_btn.configure(state="disabled")
         
         self.root.after(100, lambda: self._do_single_conversion(modified_result))
     
     def _do_single_conversion(self, result: CompatibilityResult):
-        """Esegue conversione singolo file."""
+        """Execute single file conversion."""
         output_dir = self.conversion_settings.output_dir
         conv_result = self.converter.convert(result, output_dir=output_dir)
         
         self.is_converting = False
-        self.convert_btn.configure(state="normal", text="Converti")
+        self.convert_btn.configure(state="normal", text="Convert")
         self.clear_btn.configure(state="normal")
         
         if conv_result.success:
-            message = f"✅ Conversione completata!\n\nFile salvato in:\n{conv_result.output_path}"
-            messagebox.showinfo("Conversione Completata", message)
+            message = f"✅ Conversion complete!\n\nFile saved to:\n{conv_result.output_path}"
+            messagebox.showinfo("Conversion Complete", message)
         else:
-            messagebox.showerror("Errore Conversione", f"❌ {conv_result.message}")
+            messagebox.showerror("Conversion Error", f"❌ {conv_result.message}")
     
     def _on_clear(self):
-        """Pulisce tutti i file."""
+        """Clear all files."""
         if self.is_converting:
             return
         
@@ -1295,7 +1295,7 @@ class CDJCheckApp:
         self._update_file_list()
     
     def _on_convert(self):
-        """Avvia la conversione batch."""
+        """Start batch conversion."""
         if self.is_converting:
             return
         
@@ -1304,31 +1304,31 @@ class CDJCheckApp:
             return
         
         self.is_converting = True
-        self.convert_btn.configure(state="disabled", text="Conversione...")
+        self.convert_btn.configure(state="disabled", text="Converting...")
         self.clear_btn.configure(state="disabled")
         
-        # Mostra progress bar
+        # Show progress bar
         self.progress.place(relx=0.35, rely=0.5, anchor="w")
         
-        # Esegui conversione in background
+        # Execute conversion in background
         self.root.after(100, lambda: self._do_conversion_batch(to_convert))
     
     def _do_conversion_batch(self, to_convert: list[CompatibilityResult]):
-        """Esegue conversione batch."""
+        """Execute batch conversion."""
         total = len(to_convert)
         
         def on_progress(done: int, total: int):
             self.progress.set(done / total)
             self.root.update()
         
-        # Crea piani di conversione personalizzati
+        # Create custom conversion plans
         custom_results = []
         for result in to_convert:
             custom_plan = ConversionPlan(
                 output_format=self.conversion_settings.output_format,
                 target_sample_rate=self.conversion_settings.sample_rate,
                 target_bit_depth=self.conversion_settings.bit_depth,
-                reason=f"Personalizzato: {self.conversion_settings.bit_depth}bit/{self.conversion_settings.sample_rate/1000:.1f}kHz",
+                reason=f"Custom: {self.conversion_settings.bit_depth}bit/{self.conversion_settings.sample_rate/1000:.1f}kHz",
             )
             
             custom_result = CompatibilityResult(
@@ -1345,43 +1345,43 @@ class CDJCheckApp:
         output_dir = self.conversion_settings.output_dir
         results = self.converter.convert_batch(custom_results, output_dir=output_dir, progress_callback=on_progress)
         
-        # Aggiorna UI finale
+        # Update final UI
         self.is_converting = False
         
         to_convert_count = sum(1 for r in self.results if r.needs_conversion)
         self.convert_btn.configure(
-            text=f"Converti ({to_convert_count})" if to_convert_count else "Converti",
+            text=f"Convert ({to_convert_count})" if to_convert_count else "Convert",
             state="normal" if to_convert_count else "disabled",
         )
         self.clear_btn.configure(state="normal")
         self.progress.place_forget()
         self.progress.set(0)
         
-        # Mostra risultato
+        # Show result
         summary = self.converter.get_conversion_summary(results)
         if summary["failed"] == 0:
-            message = f"✅ {summary['successful']} file convertiti con successo!"
+            message = f"✅ {summary['successful']} files converted successfully!"
             if self.conversion_settings.output_dir:
-                message += f"\n\nCartella: {self.conversion_settings.output_dir}"
+                message += f"\n\nFolder: {self.conversion_settings.output_dir}"
             else:
-                message += "\n\nI file sono stati salvati nelle rispettive cartelle 'CDJ_Ready'."
+                message += "\n\nFiles saved to respective 'CDJ_Ready' folders."
             
-            messagebox.showinfo("Conversione Completata", message)
+            messagebox.showinfo("Conversion Complete", message)
         else:
             messagebox.showwarning(
-                "Conversione completata con errori",
-                f"⚠️ {summary['successful']} successi, {summary['failed']} fallimenti\n\n"
-                f"Controlla i dettagli nella lista file."
+                "Conversion Completed with Errors",
+                f"⚠️ {summary['successful']} successful, {summary['failed']} failed\n\n"
+                f"Check file list for details."
             )
     
     def run(self):
-        """Avvia l'applicazione."""
+        """Start the application."""
         self.root.mainloop()
 
 
 def main():
-    """Entry point per la GUI."""
-    app = CDJCheckApp()
+    """Entry point for the GUI."""
+    app = DrCDJApp()
     app.run()
 
 

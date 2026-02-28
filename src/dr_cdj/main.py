@@ -272,7 +272,7 @@ def main():
         
         # Import and start main application
         try:
-            from dr_cdj.gui import CDJCheckApp
+            from dr_cdj.gui import DrCDJApp
         except Exception as e:
             logger.exception("Error importing main GUI")
             show_error_dialog(
@@ -284,7 +284,7 @@ def main():
         # Run the application
         logger.info("Starting main application...")
         try:
-            app = CDJCheckApp()
+            app = DrCDJApp()
             app.run()
         except Exception as e:
             logger.exception("Runtime error")

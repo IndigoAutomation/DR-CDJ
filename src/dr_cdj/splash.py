@@ -1,4 +1,4 @@
-"""Splash screen per Dr. CDJ - mostra caricamento e errori all'avvio."""
+"""Splash screen for Dr. CDJ - shows loading and errors at startup."""
 
 import sys
 import tkinter as tk
@@ -11,7 +11,7 @@ except ImportError:
 
 
 class SplashScreen:
-    """Splash screen che mostra il caricamento e eventuali errori."""
+    """Splash screen showing loading and any errors."""
     
     def __init__(self, title="Dr. CDJ"):
         self.root = tk.Tk()
@@ -20,7 +20,7 @@ class SplashScreen:
         self.root.resizable(False, False)
         self.root.configure(bg="#0f0f11")
         
-        # Centra la finestra
+        # Center window
         self.root.update_idletasks()
         x = (self.root.winfo_screenwidth() // 2) - (400 // 2)
         y = (self.root.winfo_screenheight() // 2) - (300 // 2)
@@ -35,7 +35,7 @@ class SplashScreen:
         # UI
         self._setup_ui()
         
-        # Aggiorna
+        # Update
         self.root.update()
     
     def _setup_ui(self):
@@ -77,7 +77,7 @@ class SplashScreen:
         # Status label
         self.status_label = tk.Label(
             frame,
-            text="Avvio in corso...",
+            text="Starting up...",
             font=("SF Pro Display", 12),
             fg="#22c55e",
             bg="#0f0f11"
@@ -95,7 +95,7 @@ class SplashScreen:
         )
         self.progress_bar.pack(pady=10)
         
-        # Dettagli errore (nascosto inizialmente)
+        # Error details (initially hidden)
         self.error_frame = tk.Frame(frame, bg="#0f0f11")
         self.error_text = tk.Text(
             self.error_frame,
@@ -111,14 +111,14 @@ class SplashScreen:
         self.error_text.pack(fill="both", expand=True)
     
     def update_status(self, message, progress=None):
-        """Aggiorna il messaggio di stato."""
+        """Update status message."""
         self.status_label.config(text=message)
         if progress is not None:
             self._draw_progress(progress)
         self.root.update()
     
     def _draw_progress(self, value):
-        """Disegna la progress bar."""
+        """Draw progress bar."""
         self.progress_bar.delete("all")
         width = int(300 * value / 100)
         self.progress_bar.create_rectangle(
@@ -128,22 +128,22 @@ class SplashScreen:
         )
     
     def show_error(self, title, message, details=""):
-        """Mostra un errore nella splash screen."""
+        """Show an error in splash screen."""
         self.status_label.config(text=f"❌ {title}", fg="#ef4444")
         
-        # Mostra frame errore
+        # Show error frame
         self.error_frame.pack(pady=10, fill="both", expand=True)
         
-        # Inserisci testo errore
+        # Insert error text
         self.error_text.config(state="normal")
         self.error_text.delete("1.0", tk.END)
         self.error_text.insert("1.0", f"{message}\n\n{details}")
         self.error_text.config(state="disabled")
         
-        # Pulsante chiudi
+        # Close button
         close_btn = tk.Button(
             self.root,
-            text="Chiudi",
+            text="Close",
             command=self.root.destroy,
             bg="#6366f1",
             fg="#fafafa",
@@ -157,9 +157,9 @@ class SplashScreen:
         self.root.update()
     
     def close(self):
-        """Chiude la splash screen."""
+        """Close splash screen."""
         self.root.destroy()
     
     def run(self):
-        """Avvia il loop della splash screen."""
+        """Start splash screen loop."""
         self.root.mainloop()

@@ -1,4 +1,4 @@
-"""Configurazioni e costanti per CDJ-Check con supporto multipli modelli."""
+"""Configuration and constants for Dr.CDJ with multi-model support."""
 
 from dataclasses import dataclass
 from typing import Set, Dict
@@ -6,7 +6,7 @@ from typing import Set, Dict
 
 @dataclass(frozen=True)
 class AudioFormat:
-    """Rappresenta un formato audio supportato."""
+    """Represents a supported audio format."""
 
     name: str
     extensions: Set[str]
@@ -17,7 +17,7 @@ class AudioFormat:
 
 @dataclass(frozen=True)
 class CDJProfile:
-    """Profilo di compatibilità per un modello CDJ."""
+    """Compatibility profile for a CDJ model."""
 
     id: str
     name: str
@@ -30,7 +30,7 @@ class CDJProfile:
 
 
 # ============================================================
-# PROFILI CDJ SUPPORTATI
+# SUPPORTED CDJ PROFILES
 # ============================================================
 
 CDJ_PROFILES = {
@@ -38,7 +38,7 @@ CDJ_PROFILES = {
         id="cdj_2000_nxs",
         name="CDJ-2000 Nexus",
         year=2012,
-        description="Prima generazione Nexus - Standard nei club",
+        description="First generation Nexus - Club standard",
         formats={
             "MP3": AudioFormat(
                 name="MP3",
@@ -78,7 +78,7 @@ CDJ_PROFILES = {
         id="cdj_2000_nxs2",
         name="CDJ-2000 Nexus 2",
         year=2016,
-        description="Seconda generazione - Aggiunge FLAC e schermo più grande",
+        description="Second generation - Adds FLAC and larger screen",
         formats={
             "MP3": AudioFormat(
                 name="MP3",
@@ -125,7 +125,7 @@ CDJ_PROFILES = {
         id="cdj_3000",
         name="CDJ-3000",
         year=2020,
-        description="Flagship attuale - Supporta alta risoluzione",
+        description="Current flagship - High resolution support",
         formats={
             "MP3": AudioFormat(
                 name="MP3",
@@ -179,7 +179,7 @@ CDJ_PROFILES = {
         id="xdj_1000_mk2",
         name="XDJ-1000MK2",
         year=2017,
-        description="Player senza drive ottico - Supporta FLAC",
+        description="Optical drive-less player - FLAC support",
         formats={
             "MP3": AudioFormat(
                 name="MP3",
@@ -233,7 +233,7 @@ CDJ_PROFILES = {
         id="xdj_700",
         name="XDJ-700",
         year=2015,
-        description="Entry-level compatto - Simile a CDJ-2000NXS",
+        description="Compact entry-level - Similar to CDJ-2000NXS",
         formats={
             "MP3": AudioFormat(
                 name="MP3",
@@ -270,12 +270,12 @@ CDJ_PROFILES = {
     ),
 }
 
-# Profilo di default
+# Default profile
 DEFAULT_PROFILE = "cdj_2000_nxs"
 
 # ============================================================
-# FORMATI CONVERTIBILI
-# Questi formati possono essere convertiti per qualsiasi profilo
+# CONVERTIBLE FORMATS
+# These formats can be converted for any profile
 # ============================================================
 
 CONVERTIBLE_FORMATS = {
@@ -316,32 +316,32 @@ CONVERTIBLE_FORMATS = {
     ),
 }
 
-# Tutti i formati riconosciuti (per analisi)
+# All recognized formats (for analysis)
 ALL_FORMATS = {}
 for profile in CDJ_PROFILES.values():
     ALL_FORMATS.update(profile.formats)
 ALL_FORMATS.update(CONVERTIBLE_FORMATS)
 
-# Preferenze di conversione
+# Conversion preferences
 DEFAULT_OUTPUT_FORMAT = "WAV"
 DEFAULT_SAMPLE_RATE = 48000
 DEFAULT_BIT_DEPTH = 24
 
-# Limiti tecnici generali
+# General technical limits
 MAX_SAMPLE_RATE = 96000
 MAX_BIT_DEPTH = 24
 SUPPORTED_BIT_DEPTHS = {16, 24}
 SUPPORTED_SAMPLE_RATES = {44100, 48000, 88200, 96000}
 
-# Configurazione FFmpeg
+# FFmpeg configuration
 FFPROBE_TIMEOUT = 30
 FFMPEG_TIMEOUT = 300
 
-# Configurazione batch
+# Batch configuration
 DEFAULT_MAX_WORKERS = 2
 MAX_MAX_WORKERS = 4
 
-# Stati di compatibilità
+# Compatibility states
 COMPATIBLE = "compatible"
 CONVERTIBLE_LOSSLESS = "convertible_lossless"
 CONVERTIBLE_LOSSY = "convertible_lossy"
@@ -349,16 +349,16 @@ INCOMPATIBLE = "incompatible"
 ERROR = "error"
 
 # ============================================================
-# COLORI MODERNI PER UI (Dark Theme Premium)
+# MODERN UI COLORS (Dark Theme Premium)
 # ============================================================
 
 COLORS = {
-    # Colori principali - Gradients
+    # Main colors - Gradients
     "primary": "#6366f1",           # Indigo 500
     "primary_light": "#818cf8",     # Indigo 400
     "primary_dark": "#4f46e5",      # Indigo 600
     
-    # Stati compatibilità
+    # Compatibility states
     "compatible": "#22c55e",        # Verde 500
     "compatible_bg": "#14532d",     # Verde 900
     "convertible_lossless": "#f59e0b",  # Amber 500
@@ -370,7 +370,7 @@ COLORS = {
     "error": "#dc2626",             # Rosso 600
     "error_bg": "#7f1d1d",          # Rosso 900
     
-    # Sfondi e superfici
+    # Backgrounds and surfaces
     "background": "#0f0f11",        # Quasi nero con tinta blu
     "surface": "#1a1a1f",           # Superficie scura
     "surface_light": "#25252d",     # Superficie più chiara
@@ -378,7 +378,7 @@ COLORS = {
     "border": "#3f3f46",            # Bordi
     "border_highlight": "#6366f1",  # Bordo evidenziato
     
-    # Testo
+    # Text
     "text": "#fafafa",              # Bianco quasi puro
     "text_secondary": "#a1a1aa",    # Grigio chiaro
     "text_muted": "#71717a",        # Grigio muto
@@ -391,7 +391,7 @@ COLORS = {
     "accent_blue": "#3b82f6",       # Blue 500
 }
 
-# Colori per profili CDJ (gradienti)
+# CDJ profile colors (gradients)
 PROFILE_COLORS = {
     "cdj_2000_nxs": ("#f59e0b", "#d97706"),    # Amber
     "cdj_2000_nxs2": ("#ec4899", "#db2777"),  # Pink
@@ -402,5 +402,5 @@ PROFILE_COLORS = {
 
 
 def get_profile_color(profile_id: str) -> tuple:
-    """Restituisce i colori del gradiente per un profilo."""
+    """Return gradient colors for a profile."""
     return PROFILE_COLORS.get(profile_id, (COLORS["primary"], COLORS["primary_dark"]))

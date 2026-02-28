@@ -1,4 +1,4 @@
-"""Utility functions per Dr. CDJ."""
+"""Utility functions for Dr. CDJ."""
 
 import os
 import sys
@@ -8,13 +8,13 @@ from pathlib import Path
 
 
 def verify_ffmpeg(path: str) -> bool:
-    """Verifica che il binario FFmpeg sia funzionante.
+    """Verify FFmpeg binary is working.
     
     Args:
-        path: Path al binario ffmpeg
+        path: Path to ffmpeg binary
         
     Returns:
-        True se il binario funziona, False altrimenti
+        True if binary works, False otherwise
     """
     if not path or path in ("ffmpeg", "ffprobe"):
         return False
@@ -31,42 +31,42 @@ def verify_ffmpeg(path: str) -> bool:
 
 
 def get_resource_path(filename: str) -> str:
-    """Restituisce il path corretto per una risorsa.
+    """Return correct path for a resource.
     
-    Ricerca ordine:
-    1. Variabili d'ambiente DR_CDJ_FFMPEG_PATH / DR_CDJ_FFPROBE_PATH
-    2. Directory 'bin' nel bundle PyInstaller
-    3. Directory root del bundle PyInstaller
-    4. PATH di sistema
+    Search order:
+    1. Environment variables DR_CDJ_FFMPEG_PATH / DR_CDJ_FFPROBE_PATH
+    2. 'bin' directory in PyInstaller bundle
+    3. Root directory of PyInstaller bundle
+    4. System PATH
     
     Args:
-        filename: Nome del file (es. "ffmpeg", "ffprobe")
+        filename: File name (e.g., "ffmpeg", "ffprobe")
         
     Returns:
-        Path completo al file o solo il filename se non trovato.
+        Full path to file or just filename if not found.
     """
-    # 1. Variabili d'ambiente (priorità massima)
+    # 1. Environment variables (highest priority)
     env_var = f"DR_CDJ_{filename.upper()}_PATH"
     if env_var in os.environ:
         path = Path(os.environ[env_var])
         if path.exists() and verify_ffmpeg(str(path)):
             return str(path)
     
-    # 2. Se in bundle PyInstaller, cerca nelle directory bundle
+    # 2. If in PyInstaller bundle, search in bundle directories
     if getattr(sys, 'frozen', False):
-        # Determina la directory base
+        # Determine base directory
         if hasattr(sys, '_MEIPASS'):
-            # _MEIPASS è la cartella temporanea dove PyInstaller estrae i file
+            # _MEIPASS is the temp folder where PyInstaller extracts files
             base_path = Path(sys._MEIPASS)
         else:
-            # Fallback: directory dell'eseguibile
+            # Fallback: executable directory
             base_path = Path(sys.executable).parent
         
-        # Possibili locations per i binari (in ordine di priorità)
+        # Possible binary locations (in priority order)
         possible_paths = [
-            # Bundle subdirectory 'bin' (nuovo metodo con download-ffmpeg.py)
+            # Bundle subdirectory 'bin' (new method with download-ffmpeg.py)
             base_path / "bin" / filename,
-            # Root del bundle
+            # Bundle root
             base_path / filename,
             # macOS .app bundle locations - PyInstaller puts binaries in Frameworks/
             base_path.parent / "Frameworks" / "bin" / filename,
@@ -81,9 +81,9 @@ def get_resource_path(filename: str) -> str:
         ]
         
         for path in possible_paths:
-            # Verifica che il file esista e sia eseguibile
+        # Check file exists and is executable
             try:
-                # Per symlink, resolve() lancia errore se rotto
+                # For symlinks, resolve() raises error if broken
                 if path.is_symlink():
                     resolved = path.resolve(strict=True)
                     if not resolved.exists():
@@ -91,7 +91,7 @@ def get_resource_path(filename: str) -> str:
                 elif not path.exists():
                     continue
                 
-                # Verifica che sia eseguibile (unix)
+                # Verify it's executable (unix)
                 if os.name != 'nt':
                     import stat
                     try:
@@ -101,50 +101,50 @@ def get_resource_path(filename: str) -> str:
                     except:
                         pass
                 
-                # Verifica che il binario funzioni davvero
+                # Verify binary actually works
                 if verify_ffmpeg(str(path)):
                     return str(path)
                     
             except (OSError, RuntimeError):
                 continue
     
-    # 3. Cerca nella directory locale dell'app (~/.dr_cdj/bin)
+    # 3. Search in app local directory (~/.dr_cdj/bin)
     local_dir = Path.home() / ".dr_cdj" / "bin" / filename
     if local_dir.exists() and verify_ffmpeg(str(local_dir)):
         return str(local_dir)
     
-    # 4. Cerca nel PATH di sistema
+    # 4. Search in system PATH
     system_path = shutil.which(filename)
     if system_path and verify_ffmpeg(system_path):
         return system_path
     
-    # 5. Fallback: restituisci il nome (permette errore graceful)
+    # 5. Fallback: return name (allows graceful error)
     return filename
 
 
 def get_ffmpeg_path() -> str:
-    """Restituisce il path a ffmpeg.
+    """Return path to ffmpeg.
     
     Returns:
-        Path completo al binario ffmpeg
+        Full path to ffmpeg binary
     """
     return get_resource_path("ffmpeg")
 
 
 def get_ffprobe_path() -> str:
-    """Restituisce il path a ffprobe.
+    """Return path to ffprobe.
     
     Returns:
-        Path completo al binario ffprobe
+        Full path to ffprobe binary
     """
     return get_resource_path("ffprobe")
 
 
 def get_binary_info() -> dict:
-    """Restituisce informazioni sui binari FFmpeg trovati.
+    """Return information about found FFmpeg binaries.
     
     Returns:
-        Dict con info su ffmpeg e ffprobe
+        Dict with info about ffmpeg and ffprobe
     """
     ffmpeg_path = get_ffmpeg_path()
     ffprobe_path = get_ffprobe_path()

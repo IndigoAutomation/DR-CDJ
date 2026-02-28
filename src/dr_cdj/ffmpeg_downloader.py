@@ -17,10 +17,17 @@ logger = logging.getLogger(__name__)
 class FFmpegDownloader:
     """Gestisce il download e l'installazione automatica di FFmpeg."""
     
-    # URL per download FFmpeg statico per macOS ARM64
+    # URL per download FFmpeg statico per macOS (evermeet.cx)
+    # FFmpeg and ffprobe are separate downloads
     FFMPEG_URLS = {
-        "arm64": "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
-        "x86_64": "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
+        "arm64": {
+            "ffmpeg": "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
+            "ffprobe": "https://evermeet.cx/ffmpeg/ffprobe-6.1.1.zip",
+        },
+        "x86_64": {
+            "ffmpeg": "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
+            "ffprobe": "https://evermeet.cx/ffmpeg/ffprobe-6.1.1.zip",
+        },
     }
     
     def __init__(self, install_dir: Optional[Path] = None):
@@ -52,7 +59,7 @@ class FFmpegDownloader:
         return "x86_64"
     
     def download_ffmpeg(self, progress_callback=None) -> bool:
-        """Scarica e installa FFmpeg.
+        """Scarica e installa FFmpeg e FFprobe.
         
         Args:
             progress_callback: Funzione callback(progress_percent, status_message)
@@ -62,59 +69,62 @@ class FFmpegDownloader:
         """
         try:
             arch = self.get_system_arch()
-            url = self.FFMPEG_URLS.get(arch, self.FFMPEG_URLS["x86_64"])
+            urls = self.FFMPEG_URLS.get(arch, self.FFMPEG_URLS["x86_64"])
             
-            logger.info(f"Downloading FFmpeg for {arch} from {url}")
+            logger.info(f"Downloading FFmpeg for {arch}")
             
-            if progress_callback:
-                progress_callback(0, "Connessione a FFmpeg...")
-            
-            # Scarica il file
-            temp_zip = self.install_dir / "ffmpeg_download.zip"
-            
-            def download_progress(block_num, block_size, total_size):
-                if total_size > 0 and progress_callback:
-                    percent = min(int((block_num * block_size / total_size) * 50), 50)
-                    progress_callback(percent, f"Download FFmpeg... {percent}%")
-            
-            if progress_callback:
-                progress_callback(5, "Download in corso...")
-            
-            urllib.request.urlretrieve(url, temp_zip, reporthook=download_progress)
-            
-            if progress_callback:
-                progress_callback(50, "Estrazione file...")
-            
-            # Estrai il contenuto
-            if temp_zip.exists():
-                with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
-                    zip_ref.extractall(self.install_dir)
+            # Download both ffmpeg and ffprobe
+            for i, (binary_name, url) in enumerate(urls.items()):
+                if progress_callback:
+                    base_percent = i * 50
+                    progress_callback(base_percent, f"Download {binary_name}...")
                 
-                # Rimuovi lo zip
-                temp_zip.unlink()
+                logger.info(f"Downloading {binary_name} from {url}")
                 
-                # Trova i file estratti
-                extracted_files = list(self.install_dir.glob("ffmpeg*"))
+                temp_zip = self.install_dir / f"{binary_name}_download.zip"
                 
-                # Rinomina e rendi eseguibile
-                for file in extracted_files:
-                    if "ffmpeg" in file.name and file.is_file():
-                        if "ffprobe" in file.name:
-                            target = self.ffprobe_path
-                        else:
-                            target = self.ffmpeg_path
-                        
-                        file.rename(target)
-                        # Rendi eseguibile
-                        target.chmod(target.stat().st_mode | stat.S_IEXEC)
+                def make_progress_handler(base):
+                    def handler(block_num, block_size, total_size):
+                        if total_size > 0 and progress_callback:
+                            percent = min(int((block_num * block_size / total_size) * 45), 45)
+                            progress_callback(base + percent, f"Download {binary_name}... {percent}%")
+                    return handler
+                
+                # Download
+                urllib.request.urlretrieve(url, temp_zip, reporthook=make_progress_handler(i * 50))
                 
                 if progress_callback:
-                    progress_callback(100, "FFmpeg installato!")
+                    progress_callback(i * 50 + 45, f"Estrazione {binary_name}...")
                 
-                logger.info(f"FFmpeg installato in {self.install_dir}")
-                return self.is_ffmpeg_installed()
+                # Extract
+                if temp_zip.exists():
+                    with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
+                        zip_ref.extractall(self.install_dir)
+                    temp_zip.unlink()
+                
+                if progress_callback:
+                    progress_callback(i * 50 + 50, f"{binary_name} pronto")
             
-            return False
+            # Find and rename extracted files
+            for file in self.install_dir.glob("*"):
+                if file.is_file() and not file.name.endswith('.zip'):
+                    if 'ffmpeg' in file.name.lower() and 'ffprobe' not in file.name.lower():
+                        file.rename(self.ffmpeg_path)
+                        self.ffmpeg_path.chmod(self.ffmpeg_path.stat().st_mode | stat.S_IEXEC)
+                    elif 'ffprobe' in file.name.lower():
+                        file.rename(self.ffprobe_path)
+                        self.ffprobe_path.chmod(self.ffprobe_path.stat().st_mode | stat.S_IEXEC)
+            
+            if progress_callback:
+                progress_callback(100, "FFmpeg installato!")
+            
+            success = self.is_ffmpeg_installed()
+            if success:
+                logger.info(f"FFmpeg installato in {self.install_dir}")
+            else:
+                logger.error(f"FFmpeg non trovato dopo il download. Files: {list(self.install_dir.glob('*'))}")
+            
+            return success
             
         except Exception as e:
             logger.exception("Errore durante il download di FFmpeg")

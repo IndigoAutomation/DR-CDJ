@@ -3,7 +3,31 @@
 import os
 import sys
 import shutil
+import subprocess
 from pathlib import Path
+
+
+def verify_ffmpeg(path: str) -> bool:
+    """Verifica che il binario FFmpeg sia funzionante.
+    
+    Args:
+        path: Path al binario ffmpeg
+        
+    Returns:
+        True se il binario funziona, False altrimenti
+    """
+    if not path or path in ("ffmpeg", "ffprobe"):
+        return False
+    
+    try:
+        result = subprocess.run(
+            [path, "-version"],
+            capture_output=True,
+            timeout=5
+        )
+        return result.returncode == 0
+    except:
+        return False
 
 
 def get_resource_path(filename: str) -> str:
@@ -25,7 +49,7 @@ def get_resource_path(filename: str) -> str:
     env_var = f"DR_CDJ_{filename.upper()}_PATH"
     if env_var in os.environ:
         path = Path(os.environ[env_var])
-        if path.exists():
+        if path.exists() and verify_ffmpeg(str(path)):
             return str(path)
     
     # 2. Se in bundle PyInstaller, cerca nelle directory bundle
@@ -44,7 +68,9 @@ def get_resource_path(filename: str) -> str:
             base_path / "bin" / filename,
             # Root del bundle
             base_path / filename,
-            # macOS .app bundle locations
+            # macOS .app bundle locations - PyInstaller puts binaries in Frameworks/
+            base_path.parent / "Frameworks" / "bin" / filename,
+            base_path.parent / "Frameworks" / filename,
             base_path.parent / "Resources" / "bin" / filename,
             base_path.parent / "Resources" / filename,
             base_path.parent / "MacOS" / "bin" / filename,
@@ -55,7 +81,16 @@ def get_resource_path(filename: str) -> str:
         ]
         
         for path in possible_paths:
-            if path.exists():
+            # Verifica che il file esista e sia eseguibile
+            try:
+                # Per symlink, resolve() lancia errore se rotto
+                if path.is_symlink():
+                    resolved = path.resolve(strict=True)
+                    if not resolved.exists():
+                        continue
+                elif not path.exists():
+                    continue
+                
                 # Verifica che sia eseguibile (unix)
                 if os.name != 'nt':
                     import stat
@@ -65,36 +100,21 @@ def get_resource_path(filename: str) -> str:
                             os.chmod(path, st.st_mode | stat.S_IXUSR)
                     except:
                         pass
-                return str(path)
+                
+                # Verifica che il binario funzioni davvero
+                if verify_ffmpeg(str(path)):
+                    return str(path)
+                    
+            except (OSError, RuntimeError):
+                continue
     
     # 3. Cerca nel PATH di sistema
     system_path = shutil.which(filename)
-    if system_path:
+    if system_path and verify_ffmpeg(system_path):
         return system_path
     
     # 4. Fallback: restituisci il nome (permette errore graceful)
     return filename
-
-
-def verify_ffmpeg(path: str) -> bool:
-    """Verifica che il binario FFmpeg sia funzionante.
-    
-    Args:
-        path: Path al binario ffmpeg
-        
-    Returns:
-        True se il binario funziona, False altrimenti
-    """
-    try:
-        import subprocess
-        result = subprocess.run(
-            [path, "-version"],
-            capture_output=True,
-            timeout=5
-        )
-        return result.returncode == 0
-    except:
-        return False
 
 
 def get_ffmpeg_path() -> str:
@@ -103,15 +123,7 @@ def get_ffmpeg_path() -> str:
     Returns:
         Path completo al binario ffmpeg
     """
-    path = get_resource_path("ffmpeg")
-    
-    # Se il path bundled non funziona, prova il sistema
-    if path != "ffmpeg" and not verify_ffmpeg(path):
-        system_ffmpeg = shutil.which("ffmpeg")
-        if system_ffmpeg and verify_ffmpeg(system_ffmpeg):
-            return system_ffmpeg
-    
-    return path
+    return get_resource_path("ffmpeg")
 
 
 def get_ffprobe_path() -> str:
@@ -120,15 +132,7 @@ def get_ffprobe_path() -> str:
     Returns:
         Path completo al binario ffprobe
     """
-    path = get_resource_path("ffprobe")
-    
-    # Se il path bundled non funziona, prova il sistema
-    if path != "ffprobe" and not verify_ffmpeg(path):
-        system_ffprobe = shutil.which("ffprobe")
-        if system_ffprobe and verify_ffmpeg(system_ffprobe):
-            return system_ffprobe
-    
-    return path
+    return get_resource_path("ffprobe")
 
 
 def get_binary_info() -> dict:
@@ -144,12 +148,12 @@ def get_binary_info() -> dict:
         "ffmpeg": {
             "path": ffmpeg_path,
             "bundled": ffmpeg_path != "ffmpeg" and shutil.which("ffmpeg") != ffmpeg_path,
-            "working": verify_ffmpeg(ffmpeg_path) if ffmpeg_path else False,
+            "working": verify_ffmpeg(ffmpeg_path),
         },
         "ffprobe": {
             "path": ffprobe_path,
             "bundled": ffprobe_path != "ffprobe" and shutil.which("ffprobe") != ffprobe_path,
-            "working": verify_ffmpeg(ffprobe_path) if ffprobe_path else False,
+            "working": verify_ffmpeg(ffprobe_path),
         }
     }
     

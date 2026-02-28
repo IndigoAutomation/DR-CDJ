@@ -48,39 +48,142 @@ def show_error_dialog(title: str, message: str):
 
 
 # =============================================================================
+# macOS Gatekeeper Fix
+# =============================================================================
+def remove_extended_attributes():
+    """Remove macOS extended attributes from bundled binaries (Gatekeeper fix)."""
+    if sys.platform != 'darwin':
+        return
+    
+    if not getattr(sys, 'frozen', False):
+        return
+    
+    try:
+        # Find bundled binaries
+        bundle_dir = Path(sys.executable).parent
+        binary_paths = [
+            bundle_dir.parent / "Frameworks" / "bin" / "ffmpeg",
+            bundle_dir.parent / "Frameworks" / "bin" / "ffprobe",
+            bundle_dir.parent / "Resources" / "bin" / "ffmpeg",
+            bundle_dir.parent / "Resources" / "bin" / "ffprobe",
+        ]
+        
+        for path in binary_paths:
+            if path.exists():
+                try:
+                    # Remove com.apple.quarantine and com.apple.provenance
+                    subprocess.run(
+                        ['xattr', '-d', 'com.apple.quarantine', str(path)],
+                        capture_output=True,
+                        timeout=5
+                    )
+                    subprocess.run(
+                        ['xattr', '-d', 'com.apple.provenance', str(path)],
+                        capture_output=True,
+                        timeout=5
+                    )
+                    logger.debug(f"Removed extended attributes from {path}")
+                except:
+                    pass
+    except Exception as e:
+        logger.warning(f"Could not remove extended attributes: {e}")
+
+
+# =============================================================================
 # FFmpeg Setup
 # =============================================================================
+def get_bundled_binaries():
+    """Get paths to bundled FFmpeg binaries."""
+    if not getattr(sys, 'frozen', False):
+        return None, None
+    
+    bundle_dir = Path(sys.executable).parent
+    
+    # Search in possible locations
+    possible_paths = [
+        (bundle_dir.parent / "Frameworks" / "bin" / "ffmpeg", bundle_dir.parent / "Resources" / "bin" / "ffprobe"),
+        (bundle_dir.parent / "Resources" / "bin" / "ffmpeg", bundle_dir.parent / "Frameworks" / "bin" / "ffprobe"),
+        (bundle_dir / "bin" / "ffmpeg", bundle_dir / "bin" / "ffprobe"),
+    ]
+    
+    for ffmpeg_path, ffprobe_path in possible_paths:
+        ffmpeg_exists = ffmpeg_path.exists() or (ffmpeg_path.is_symlink() and ffmpeg_path.resolve().exists())
+        ffprobe_exists = ffprobe_path.exists() or (ffprobe_path.is_symlink() and ffprobe_path.resolve().exists())
+        
+        if ffmpeg_exists and ffprobe_exists:
+            return str(ffmpeg_path), str(ffprobe_path)
+    
+    return None, None
+
+
+def copy_bundled_to_local():
+    """Copy bundled FFmpeg binaries to local dir (bypasses Gatekeeper)."""
+    import shutil
+    
+    local_dir = Path.home() / ".dr_cdj" / "bin"
+    local_dir.mkdir(parents=True, exist_ok=True)
+    
+    ffmpeg_bundled, ffprobe_bundled = get_bundled_binaries()
+    
+    if not ffmpeg_bundled or not ffprobe_bundled:
+        return None, None
+    
+    ffmpeg_local = local_dir / "ffmpeg"
+    ffprobe_local = local_dir / "ffprobe"
+    
+    try:
+        # Copy files
+        shutil.copy2(ffmpeg_bundled, ffmpeg_local)
+        shutil.copy2(ffprobe_bundled, ffprobe_local)
+        
+        # Remove extended attributes (Gatekeeper)
+        if sys.platform == 'darwin':
+            subprocess.run(['xattr', '-d', 'com.apple.provenance', str(ffmpeg_local)], capture_output=True)
+            subprocess.run(['xattr', '-d', 'com.apple.provenance', str(ffprobe_local)], capture_output=True)
+            subprocess.run(['xattr', '-d', 'com.apple.quarantine', str(ffmpeg_local)], capture_output=True)
+            subprocess.run(['xattr', '-d', 'com.apple.quarantine', str(ffprobe_local)], capture_output=True)
+        
+        # Make executable
+        ffmpeg_local.chmod(0o755)
+        ffprobe_local.chmod(0o755)
+        
+        logger.info(f"Copied bundled FFmpeg to {local_dir}")
+        return str(ffmpeg_local), str(ffprobe_local)
+    except Exception as e:
+        logger.warning(f"Could not copy bundled FFmpeg: {e}")
+        return None, None
+
+
 def setup_ffmpeg() -> bool:
     """
     Setup FFmpeg for the application.
     
     Priority:
-    1. Bundled FFmpeg (included in app bundle)
-    2. System FFmpeg (from PATH)
-    3. Download FFmpeg if neither available
+    1. System FFmpeg (from PATH) - most reliable
+    2. Download FFmpeg (works on clean macOS)
+    
+    Note: Bundled FFmpeg is blocked by Gatekeeper on macOS,
+    so we download fresh copies which don't have quarantine attributes.
     
     Returns:
         True if FFmpeg is ready to use
     """
-    from dr_cdj.utils import get_ffmpeg_path, get_ffprobe_path, verify_ffmpeg
+    from dr_cdj.utils import verify_ffmpeg
+    import shutil
     
-    ffmpeg_path = get_ffmpeg_path()
-    ffprobe_path = get_ffprobe_path()
+    # 1. Try system FFmpeg first (most reliable)
+    system_ffmpeg = shutil.which("ffmpeg")
+    system_ffprobe = shutil.which("ffprobe")
     
-    logger.info(f"FFmpeg path: {ffmpeg_path}")
-    logger.info(f"FFprobe path: {ffprobe_path}")
+    if system_ffmpeg and system_ffprobe:
+        if verify_ffmpeg(system_ffmpeg) and verify_ffmpeg(system_ffprobe):
+            os.environ["DR_CDJ_FFMPEG_PATH"] = system_ffmpeg
+            os.environ["DR_CDJ_FFPROBE_PATH"] = system_ffprobe
+            logger.info(f"✅ Using system FFmpeg")
+            return True
     
-    # Verify FFmpeg works
-    if verify_ffmpeg(ffmpeg_path) and verify_ffmpeg(ffprobe_path):
-        # Set environment variables for subprocess calls
-        os.environ["DR_CDJ_FFMPEG_PATH"] = ffmpeg_path
-        os.environ["DR_CDJ_FFPROBE_PATH"] = ffprobe_path
-        logger.info("✅ FFmpeg verified and configured")
-        return True
-    
-    logger.warning("Bundled/system FFmpeg not working, attempting download...")
-    
-    # Fallback: download FFmpeg
+    # 2. Download FFmpeg (works reliably on all macOS systems)
+    logger.info("Downloading FFmpeg...")
     return download_ffmpeg_fallback()
 
 
@@ -136,7 +239,7 @@ def main():
         logger.info(f"Log file: {log_file}")
         logger.info("="*50)
         
-        # Setup FFmpeg (bundled, system, or download)
+        # Setup FFmpeg (bundled → local, system, or download)
         logger.info("Setting up FFmpeg...")
         if not setup_ffmpeg():
             show_ffmpeg_error()

@@ -1,9 +1,7 @@
-"""GUI moderna per CDJ-Check con conversione avanzata e A/B test."""
+"""GUI moderna per CDJ-Check con info specifiche CDJ e massima qualità."""
 
 import sys
 import tkinter as tk
-import tempfile
-import subprocess
 from pathlib import Path
 from tkinter import filedialog, messagebox
 from typing import Optional
@@ -26,11 +24,10 @@ from cdj_check.converter import AudioConverter, ConversionResult
 @dataclass
 class ConversionSettings:
     """Impostazioni personalizzate per la conversione."""
-    output_format: str = "WAV"  # WAV, AIFF, MP3, AAC
+    output_format: str = "WAV"  # WAV, AIFF
     sample_rate: int = 48000    # 44100, 48000, 88200, 96000
     bit_depth: int = 24         # 16, 24
     output_dir: Optional[Path] = None
-    ab_test_enabled: bool = False
 
 
 class ModernTooltip:
@@ -282,6 +279,79 @@ class FileCard(ctk.CTkFrame):
             self.on_remove(self.result)
 
 
+class ProfileInfoPanel(ctk.CTkFrame):
+    """Pannello informazioni profilo CDJ."""
+
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        
+        self.configure(fg_color=COLORS["surface"], corner_radius=12)
+        
+        # Titolo
+        self.title = ctk.CTkLabel(
+            self,
+            text="📋 Specifiche Player",
+            font=("SF Pro Display", 14, "bold"),
+            text_color=COLORS["text"],
+        )
+        self.title.pack(anchor="w", padx=16, pady=(12, 8))
+        
+        # Container info
+        self.info_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.info_frame.pack(fill="x", padx=16, pady=(0, 12))
+        
+        # Label per le info
+        self.name_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=("SF Pro Display", 13, "bold"),
+            text_color=COLORS["primary_light"],
+        )
+        self.name_label.pack(anchor="w")
+        
+        self.desc_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=("SF Pro Display", 11),
+            text_color=COLORS["text_secondary"],
+        )
+        self.desc_label.pack(anchor="w", pady=(2, 0))
+        
+        self.max_quality_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=("SF Pro Display", 12),
+            text_color=COLORS["compatible"],
+        )
+        self.max_quality_label.pack(anchor="w", pady=(8, 0))
+        
+        self.formats_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=("SF Pro Display", 11),
+            text_color=COLORS["text_muted"],
+        )
+        self.formats_label.pack(anchor="w", pady=(4, 0))
+    
+    def update_info(self, profile_id: str):
+        """Aggiorna le informazioni del profilo."""
+        profile = CDJ_PROFILES.get(profile_id)
+        if not profile:
+            return
+        
+        self.name_label.configure(text=f"{profile.name} ({profile.year})")
+        self.desc_label.configure(text=profile.description)
+        
+        max_sr = profile.max_sample_rate / 1000
+        max_bd = profile.max_bit_depth
+        self.max_quality_label.configure(
+            text=f"🎯 Massima Qualità Supportata: {max_bd}-bit / {max_sr:.1f} kHz"
+        )
+        
+        formats_text = "Formati nativi: " + ", ".join(profile.formats.keys())
+        self.formats_label.configure(text=formats_text)
+
+
 class ConversionSettingsPanel(ctk.CTkFrame):
     """Pannello impostazioni conversione."""
 
@@ -318,8 +388,8 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         # Cartella output
         self._setup_output_dir_selector()
         
-        # A/B Test
-        self._setup_ab_test_toggle()
+        # Info massima qualità
+        self._setup_quality_info()
     
     def _setup_format_selector(self):
         """Selettore formato output."""
@@ -450,24 +520,43 @@ class ConversionSettingsPanel(ctk.CTkFrame):
         )
         self.dir_btn.pack(side="right")
     
-    def _setup_ab_test_toggle(self):
-        """Toggle A/B test."""
-        frame = ctk.CTkFrame(self.controls_frame, fg_color="transparent")
-        frame.pack(fill="x", pady=8)
-        
-        self.ab_var = ctk.BooleanVar(value=self.settings.ab_test_enabled)
-        
-        self.ab_switch = ctk.CTkSwitch(
-            frame,
-            text="A/B Test Qualità (confronta originale/convertito)",
-            variable=self.ab_var,
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text"],
-            fg_color=COLORS["primary"],
-            progress_color=COLORS["primary"],
-            command=self._on_ab_toggle,
+    def _setup_quality_info(self):
+        """Info qualità consigliata."""
+        self.quality_info_label = ctk.CTkLabel(
+            self.controls_frame,
+            text="",
+            font=("SF Pro Display", 11, "italic"),
+            text_color=COLORS["accent_cyan"],
         )
-        self.ab_switch.pack(side="left")
+        self.quality_info_label.pack(anchor="w", pady=(8, 0))
+    
+    def update_quality_info(self, profile_id: str):
+        """Aggiorna l'info qualità in base al profilo."""
+        profile = CDJ_PROFILES.get(profile_id)
+        if profile:
+            max_sr = profile.max_sample_rate / 1000
+            max_bd = profile.max_bit_depth
+            self.quality_info_label.configure(
+                text=f"💡 Qualità consigliata per {profile.name}: {max_bd}-bit / {max_sr:.1f} kHz"
+            )
+    
+    def set_max_quality(self, profile_id: str):
+        """Imposta la massima qualità per il profilo."""
+        profile = CDJ_PROFILES.get(profile_id)
+        if not profile:
+            return
+        
+        # Imposta bit depth massimo
+        self.settings.bit_depth = profile.max_bit_depth
+        self.bd_var.set(str(profile.max_bit_depth))
+        
+        # Imposta sample rate massimo
+        self.settings.sample_rate = profile.max_sample_rate
+        self.sr_var.set(str(profile.max_sample_rate))
+        
+        # Aggiorna info
+        self.update_quality_info(profile_id)
+        self.on_change()
     
     def _on_format_change(self):
         self.settings.output_format = self.format_var.get()
@@ -488,170 +577,10 @@ class ConversionSettingsPanel(ctk.CTkFrame):
             display_path = dir_path[:30] + "..." if len(dir_path) > 30 else dir_path
             self.dir_label.configure(text=display_path)
             self.on_change()
-    
-    def _on_ab_toggle(self):
-        self.settings.ab_test_enabled = self.ab_var.get()
-        self.on_change()
-
-
-class ABTestDialog(ctk.CTkToplevel):
-    """Dialog per A/B test qualità audio."""
-
-    def __init__(self, master, original_path: Path, converted_path: Path, **kwargs):
-        super().__init__(master, **kwargs)
-        
-        self.original_path = original_path
-        self.converted_path = converted_path
-        self.currently_playing = "original"
-        self.process = None
-        
-        self.title("A/B Test Qualità")
-        self.geometry("500x300")
-        self.configure(fg_color=COLORS["background"])
-        
-        self._setup_ui()
-        
-        # Chiudi player quando chiudi dialog
-        self.protocol("WM_DELETE_WINDOW", self._on_close)
-    
-    def _setup_ui(self):
-        """Setup UI del dialog."""
-        # Titolo
-        self.title_label = ctk.CTkLabel(
-            self,
-            text="🎧 A/B Test Qualità Audio",
-            font=("SF Pro Display", 18, "bold"),
-            text_color=COLORS["text"],
-        )
-        self.title_label.pack(pady=(20, 10))
-        
-        # Info file
-        info_text = f"Originale: {self.original_path.name[:40]}\n"
-        info_text += f"Convertito: {self.converted_path.name[:40]}"
-        
-        self.info_label = ctk.CTkLabel(
-            self,
-            text=info_text,
-            font=("SF Pro Display", 11),
-            text_color=COLORS["text_secondary"],
-            justify="center",
-        )
-        self.info_label.pack(pady=10)
-        
-        # Istruzioni
-        self.instr_label = ctk.CTkLabel(
-            self,
-            text="Premi A per ascoltare il file originale\nPremi B per ascoltare il file convertito",
-            font=("SF Pro Display", 12),
-            text_color=COLORS["text"],
-            justify="center",
-        )
-        self.instr_label.pack(pady=10)
-        
-        # Status
-        self.status_label = ctk.CTkLabel(
-            self,
-            text="Pronto per la riproduzione",
-            font=("SF Pro Display", 14, "bold"),
-            text_color=COLORS["primary"],
-        )
-        self.status_label.pack(pady=10)
-        
-        # Pulsanti A/B
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(pady=20)
-        
-        self.btn_a = ctk.CTkButton(
-            btn_frame,
-            text="A - Originale",
-            font=("SF Pro Display", 14, "bold"),
-            width=140,
-            height=50,
-            fg_color=COLORS["primary"],
-            hover_color=COLORS["primary_dark"],
-            corner_radius=10,
-            command=lambda: self._play("original"),
-        )
-        self.btn_a.pack(side="left", padx=10)
-        
-        self.btn_b = ctk.CTkButton(
-            btn_frame,
-            text="B - Convertito",
-            font=("SF Pro Display", 14, "bold"),
-            width=140,
-            height=50,
-            fg_color=COLORS["surface_light"],
-            hover_color=COLORS["primary"],
-            corner_radius=10,
-            command=lambda: self._play("converted"),
-        )
-        self.btn_b.pack(side="left", padx=10)
-        
-        # Stop button
-        self.stop_btn = ctk.CTkButton(
-            self,
-            text="⏹ Stop",
-            font=("SF Pro Display", 12),
-            width=100,
-            height=32,
-            fg_color=COLORS["incompatible"],
-            hover_color=COLORS["error"],
-            corner_radius=8,
-            command=self._stop,
-        )
-        self.stop_btn.pack(pady=10)
-        
-        # Bind tasti
-        self.bind("a", lambda e: self._play("original"))
-        self.bind("b", lambda e: self._play("converted"))
-        self.bind("<space>", lambda e: self._stop())
-    
-    def _play(self, source: str):
-        """Riproduce il file selezionato."""
-        self._stop()
-        
-        path = self.original_path if source == "original" else self.converted_path
-        self.currently_playing = source
-        
-        try:
-            # Usa ffplay per riproduzione (incluso in FFmpeg)
-            self.process = subprocess.Popen(
-                ["ffplay", "-nodisp", "-autoexit", str(path)],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            
-            # Aggiorna UI
-            if source == "original":
-                self.status_label.configure(text="▶️ Riproducendo: ORIGINALE (A)")
-                self.btn_a.configure(fg_color=COLORS["compatible"])
-                self.btn_b.configure(fg_color=COLORS["surface_light"])
-            else:
-                self.status_label.configure(text="▶️ Riproducendo: CONVERTITO (B)")
-                self.btn_a.configure(fg_color=COLORS["surface_light"])
-                self.btn_b.configure(fg_color=COLORS["compatible"])
-                
-        except Exception as e:
-            self.status_label.configure(text=f"❌ Errore: {e}")
-    
-    def _stop(self):
-        """Ferma la riproduzione."""
-        if self.process:
-            self.process.terminate()
-            self.process = None
-        
-        self.status_label.configure(text="⏹ Stopped")
-        self.btn_a.configure(fg_color=COLORS["primary"])
-        self.btn_b.configure(fg_color=COLORS["surface_light"])
-    
-    def _on_close(self):
-        """Chiusura dialog."""
-        self._stop()
-        self.destroy()
 
 
 class ProfileSelector(ctk.CTkFrame):
-    """Selettore profilo CDJ moderno."""
+    """Selettore profilo CDJ moderno con info popup."""
 
     def __init__(self, master, on_change: callable, **kwargs):
         super().__init__(master, **kwargs)
@@ -699,34 +628,81 @@ class ProfileSelector(ctk.CTkFrame):
         )
         self.dropdown.pack(padx=2, pady=2)
         
-        # Descrizione
-        self.desc_label = ctk.CTkLabel(
+        # Pulsante info
+        self.info_btn = ctk.CTkButton(
             self,
-            text="",
+            text="ℹ️ Info",
             font=("SF Pro Display", 10),
-            text_color=COLORS["text_muted"],
+            width=60,
+            height=22,
+            fg_color=COLORS["surface_light"],
+            hover_color=COLORS["primary"],
+            text_color=COLORS["text"],
+            corner_radius=6,
+            command=self._show_info,
         )
-        self.desc_label.pack(anchor="w", pady=(4, 0))
+        self.info_btn.pack(anchor="w", pady=(4, 0))
         
         # Mappa nome -> id
         self._name_to_id = {CDJ_PROFILES[p].name: p for p in profiles}
-        
-        # Imposta default
-        self._update_description(profiles[0])
     
     def _on_select(self, choice):
         """Callback selezione profilo."""
         profile_id = self._name_to_id.get(choice)
         if profile_id:
-            self._update_description(profile_id)
             self.on_change(profile_id)
     
-    def _update_description(self, profile_id: str):
-        """Aggiorna la descrizione del profilo."""
+    def _show_info(self):
+        """Mostra info del profilo selezionato."""
+        profile_id = self.get_selected_id()
         profile = CDJ_PROFILES.get(profile_id)
-        if profile:
-            formats = ", ".join(profile.formats.keys())
-            self.desc_label.configure(text=f"{profile.year} • {formats}")
+        if not profile:
+            return
+        
+        # Crea dialog info
+        dialog = ctk.CTkToplevel(self)
+        dialog.title(f"Info {profile.name}")
+        dialog.geometry("400x300")
+        dialog.configure(fg_color=COLORS["background"])
+        
+        # Titolo
+        title = ctk.CTkLabel(
+            dialog,
+            text=f"📀 {profile.name}",
+            font=("SF Pro Display", 18, "bold"),
+            text_color=COLORS["text"],
+        )
+        title.pack(pady=(20, 10))
+        
+        # Info
+        info_text = f"Anno: {profile.year}\n\n"
+        info_text += f"{profile.description}\n\n"
+        info_text += f"Massima Qualità:\n"
+        info_text += f"  • Sample Rate: fino a {profile.max_sample_rate/1000:.1f} kHz\n"
+        info_text += f"  • Bit Depth: fino a {profile.max_bit_depth}-bit\n\n"
+        info_text += f"Formati supportati:\n  • "
+        info_text += "\n  • ".join(profile.formats.keys())
+        
+        info_label = ctk.CTkLabel(
+            dialog,
+            text=info_text,
+            font=("SF Pro Display", 12),
+            text_color=COLORS["text_secondary"],
+            justify="left",
+        )
+        info_label.pack(pady=10, padx=20)
+        
+        # Pulsante chiudi
+        close_btn = ctk.CTkButton(
+            dialog,
+            text="Chiudi",
+            font=("SF Pro Display", 12),
+            width=100,
+            fg_color=COLORS["primary"],
+            hover_color=COLORS["primary_dark"],
+            command=dialog.destroy,
+        )
+        close_btn.pack(pady=20)
     
     def get_selected_id(self) -> str:
         """Restituisce l'ID del profilo selezionato."""
@@ -738,7 +714,6 @@ class ProfileSelector(ctk.CTkFrame):
         profile = CDJ_PROFILES.get(profile_id)
         if profile:
             self.dropdown.set(profile.name)
-            self._update_description(profile_id)
 
 
 class CDJCheckApp:
@@ -753,8 +728,8 @@ class CDJCheckApp:
         # Finestra principale con supporto drag-and-drop
         self.root = TkinterDnD.Tk()
         self.root.title("CDJ-Check — Audio Compatibility Checker")
-        self.root.geometry("1100x900")
-        self.root.minsize(1000, 800)
+        self.root.geometry("1200x900")
+        self.root.minsize(1100, 800)
         self.root.configure(bg=COLORS["background"])
         
         # Inizializza engine
@@ -779,6 +754,9 @@ class CDJCheckApp:
         self.conversion_settings = ConversionSettings()
         
         self._setup_ui()
+        
+        # Imposta massima qualità per il profilo default
+        self._apply_max_quality()
     
     def _setup_ui(self):
         """Configura l'interfaccia utente moderna."""
@@ -789,7 +767,8 @@ class CDJCheckApp:
         )
         self.main_frame.pack(fill="both", expand=True, padx=24, pady=24)
         
-        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=2)
+        self.main_frame.grid_columnconfigure(1, weight=1)
         self.main_frame.grid_rowconfigure(3, weight=1)
         
         # Header con logo e selettore profilo
@@ -798,8 +777,8 @@ class CDJCheckApp:
         # Drop zone moderna
         self._setup_drop_zone()
         
-        # Pannello impostazioni conversione
-        self._setup_settings_panel()
+        # Pannello laterale (info + impostazioni)
+        self._setup_side_panel()
         
         # Lista file
         self._setup_file_list()
@@ -813,7 +792,7 @@ class CDJCheckApp:
             self.main_frame,
             fg_color="transparent",
         )
-        header.grid(row=0, column=0, sticky="ew", pady=(0, 20))
+        header.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 20))
         header.grid_columnconfigure(0, weight=1)
         
         # Logo e titolo
@@ -864,37 +843,37 @@ class CDJCheckApp:
             border_width=2,
             border_color=COLORS["border"],
             corner_radius=16,
-            height=120,
+            height=100,
         )
-        self.drop_frame.grid(row=1, column=0, sticky="new", pady=(0, 16))
+        self.drop_frame.grid(row=1, column=0, columnspan=2, sticky="new", pady=(0, 16))
         self.drop_frame.grid_propagate(False)
         
         # Icona
         self.drop_icon = ctk.CTkLabel(
             self.drop_frame,
             text="↗",
-            font=("SF Pro Display", 36),
+            font=("SF Pro Display", 32),
             text_color=COLORS["primary"],
         )
-        self.drop_icon.place(relx=0.5, rely=0.35, anchor="center")
+        self.drop_icon.place(relx=0.5, rely=0.30, anchor="center")
         
         # Testo principale
         self.drop_label = ctk.CTkLabel(
             self.drop_frame,
             text="Trascina i file audio qui",
-            font=("SF Pro Display", 15, "bold"),
+            font=("SF Pro Display", 14, "bold"),
             text_color=COLORS["text"],
         )
-        self.drop_label.place(relx=0.5, rely=0.65, anchor="center")
+        self.drop_label.place(relx=0.5, rely=0.60, anchor="center")
         
         # Testo secondario
         self.drop_sublabel = ctk.CTkLabel(
             self.drop_frame,
             text="oppure clicca per selezionare",
-            font=("SF Pro Display", 11),
+            font=("SF Pro Display", 10),
             text_color=COLORS["text_muted"],
         )
-        self.drop_sublabel.place(relx=0.5, rely=0.80, anchor="center")
+        self.drop_sublabel.place(relx=0.5, rely=0.78, anchor="center")
         
         # Bind drag-and-drop
         self.drop_frame.drop_target_register(DND_FILES)
@@ -910,14 +889,22 @@ class CDJCheckApp:
         self.drop_frame.bind("<Enter>", self._on_drop_enter)
         self.drop_frame.bind("<Leave>", self._on_drop_leave)
     
-    def _setup_settings_panel(self):
-        """Configura il pannello impostazioni."""
+    def _setup_side_panel(self):
+        """Configura il pannello laterale con info e impostazioni."""
+        self.side_panel = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        self.side_panel.grid(row=2, column=1, rowspan=2, sticky="nsew", padx=(16, 0))
+        
+        # Pannello info profilo
+        self.profile_info = ProfileInfoPanel(self.side_panel)
+        self.profile_info.pack(fill="x", pady=(0, 12))
+        
+        # Pannello impostazioni conversione
         self.settings_panel = ConversionSettingsPanel(
-            self.main_frame,
+            self.side_panel,
             settings=self.conversion_settings,
             on_change=self._on_settings_change,
         )
-        self.settings_panel.grid(row=2, column=0, sticky="ew", pady=(0, 16))
+        self.settings_panel.pack(fill="x")
     
     def _setup_file_list(self):
         """Configura la lista file moderna."""
@@ -926,7 +913,7 @@ class CDJCheckApp:
             self.main_frame,
             fg_color="transparent",
         )
-        self.list_container.grid(row=3, column=0, sticky="nsew", pady=(0, 16))
+        self.list_container.grid(row=2, column=0, rowspan=2, sticky="nsew", pady=(0, 16))
         self.list_container.grid_columnconfigure(0, weight=1)
         self.list_container.grid_rowconfigure(1, weight=1)
         
@@ -983,7 +970,7 @@ class CDJCheckApp:
             corner_radius=12,
             height=70,
         )
-        action_bar.grid(row=4, column=0, sticky="ew")
+        action_bar.grid(row=4, column=0, columnspan=2, sticky="ew")
         action_bar.grid_propagate(False)
         
         # Info conversione
@@ -1038,14 +1025,25 @@ class CDJCheckApp:
         )
         self.progress.set(0)
     
+    def _apply_max_quality(self):
+        """Applica la massima qualità per il profilo corrente."""
+        profile_id = self.compatibility.profile_id
+        self.settings_panel.set_max_quality(profile_id)
+        self.profile_info.update_info(profile_id)
+    
     def _on_settings_change(self):
         """Callback cambio impostazioni."""
-        # Aggiorna l'UI se necessario
         pass
     
     def _on_profile_change(self, profile_id: str):
         """Callback cambio profilo."""
         self.compatibility.set_profile(profile_id)
+        
+        # Aggiorna info profilo
+        self.profile_info.update_info(profile_id)
+        
+        # Imposta massima qualità automaticamente
+        self.settings_panel.set_max_quality(profile_id)
         
         # Rianalizza i file esistenti con il nuovo profilo
         if self.results:
@@ -1284,19 +1282,9 @@ class CDJCheckApp:
         
         if conv_result.success:
             message = f"✅ Conversione completata!\n\nFile salvato in:\n{conv_result.output_path}"
-            
-            # A/B Test se abilitato
-            if self.conversion_settings.ab_test_enabled and conv_result.output_path:
-                self._show_ab_test(result.filepath, conv_result.output_path)
-            else:
-                messagebox.showinfo("Conversione Completata", message)
+            messagebox.showinfo("Conversione Completata", message)
         else:
             messagebox.showerror("Errore Conversione", f"❌ {conv_result.message}")
-    
-    def _show_ab_test(self, original: Path, converted: Path):
-        """Mostra dialog A/B test."""
-        dialog = ABTestDialog(self.root, original, converted)
-        dialog.focus()
     
     def _on_clear(self):
         """Pulisce tutti i file."""
@@ -1328,8 +1316,6 @@ class CDJCheckApp:
     def _do_conversion_batch(self, to_convert: list[CompatibilityResult]):
         """Esegue conversione batch."""
         total = len(to_convert)
-        completed = 0
-        converted_files = []
         
         def on_progress(done: int, total: int):
             self.progress.set(done / total)
@@ -1359,11 +1345,6 @@ class CDJCheckApp:
         output_dir = self.conversion_settings.output_dir
         results = self.converter.convert_batch(custom_results, output_dir=output_dir, progress_callback=on_progress)
         
-        # Raccogli file convertiti per A/B test
-        for r in results:
-            if r.success and r.output_path:
-                converted_files.append((r.source_path, r.output_path))
-        
         # Aggiorna UI finale
         self.is_converting = False
         
@@ -1385,14 +1366,7 @@ class CDJCheckApp:
             else:
                 message += "\n\nI file sono stati salvati nelle rispettive cartelle 'CDJ_Ready'."
             
-            # A/B Test se abilitato e c'è almeno un file
-            if self.conversion_settings.ab_test_enabled and converted_files:
-                messagebox.showinfo("Conversione Completata", message)
-                # Mostra A/B test per il primo file
-                orig, conv = converted_files[0]
-                self._show_ab_test(orig, conv)
-            else:
-                messagebox.showinfo("Conversione Completata", message)
+            messagebox.showinfo("Conversione Completata", message)
         else:
             messagebox.showwarning(
                 "Conversione completata con errori",

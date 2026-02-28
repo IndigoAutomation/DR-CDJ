@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cdj-check"
+name = "dr-cdj"
 version = "0.1.0"
 description = "Audio Compatibility Checker & Converter per Pioneer CDJ-2000 Nexus"
 readme = "README.md"

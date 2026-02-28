@@ -1,235 +1,155 @@
-"""Entry point principale per CDJ-Check."""
+"""Entry point per Dr. CDJ con gestione errori robusta."""
 
-import argparse
 import sys
+import os
+import traceback
+import logging
+import tempfile
 from pathlib import Path
 
+# Setup logging su file per debug - usa directory temporanea per evitare problemi permessi
+log_dir = Path(tempfile.gettempdir()) / "Dr-CDJ-Logs"
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / "app.log"
 
-def run_gui():
-    """Avvia l'interfaccia grafica."""
-    from cdj_check.gui import main as gui_main
-    gui_main()
-
-
-def run_cli():
-    """Avvia la modalità CLI."""
-    parser = argparse.ArgumentParser(
-        description="CDJ-Check — Audio Compatibility Checker per Pioneer CDJ-2000 Nexus",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Esempi:
-  %(prog)s --gui                          # Avvia GUI
-  %(prog)s check file.mp3                 # Verifica un file
-  %(prog)s check folder/                  # Verifica tutta una cartella
-  %(prog)s convert file.flac              # Converte un file
-  %(prog)s convert folder/ --output dir/  # Converte con output specifico
-        """,
-    )
-    
-    parser.add_argument(
-        "--gui",
-        action="store_true",
-        help="Avvia l'interfaccia grafica (default se nessun comando)",
-    )
-    
-    subparsers = parser.add_subparsers(dest="command", help="Comandi disponibili")
-    
-    # Comando check
-    check_parser = subparsers.add_parser(
-        "check",
-        help="Verifica compatibilità file audio",
-    )
-    check_parser.add_argument(
-        "path",
-        type=Path,
-        help="File o cartella da verificare",
-    )
-    check_parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output in formato JSON",
-    )
-    
-    # Comando convert
-    convert_parser = subparsers.add_parser(
-        "convert",
-        help="Converte file non compatibili",
-    )
-    convert_parser.add_argument(
-        "path",
-        type=Path,
-        help="File o cartella da convertire",
-    )
-    convert_parser.add_argument(
-        "-o", "--output",
-        type=Path,
-        default=None,
-        help="Cartella di output (default: CDJ_Ready/)",
-    )
-    convert_parser.add_argument(
-        "--workers",
-        type=int,
-        default=2,
-        help="Numero di thread paralleli (default: 2, max: 4)",
-    )
-    
-    args = parser.parse_args()
-    
-    # Default: GUI
-    if args.gui or args.command is None:
-        run_gui()
-        return
-    
-    # Esegui comando
-    if args.command == "check":
-        cli_check(args)
-    elif args.command == "convert":
-        cli_convert(args)
-    else:
-        parser.print_help()
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
-def cli_check(args):
-    """Comando check per CLI."""
-    import json
+def show_error_native(title, message):
+    """Mostra un errore usando osascript (AppleScript) che funziona sempre su macOS."""
+    import subprocess
+    script = f'display dialog "{message}" with title "{title}" buttons {{"OK"}} default button "OK" with icon stop'
+    try:
+        subprocess.run(['osascript', '-e', script], capture_output=True, timeout=10)
+    except:
+        pass
     
-    from cdj_check.analyzer import AudioAnalyzer
-    from cdj_check.compatibility import CompatibilityEngine
+    # Anche su stderr
+    print(f"\n{'='*50}", file=sys.stderr)
+    print(f"ERRORE: {title}", file=sys.stderr)
+    print(f"{'='*50}", file=sys.stderr)
+    print(f"\n{message}", file=sys.stderr)
+    print(f"\nLog: {log_file}", file=sys.stderr)
+
+
+def check_ffmpeg():
+    """Verifica che FFmpeg sia disponibile."""
+    import subprocess
     
-    analyzer = AudioAnalyzer()
-    engine = CompatibilityEngine()
+    ffmpeg_paths = [
+        "ffmpeg",
+        "/opt/homebrew/bin/ffmpeg",
+        "/usr/local/bin/ffmpeg",
+        "/usr/bin/ffmpeg",
+    ]
     
-    # Raccogli file
-    files = []
-    if args.path.is_file():
-        files = [args.path]
-    elif args.path.is_dir():
-        for ext in [".mp3", ".m4a", ".wav", ".aiff", ".aif", ".flac", ".ogg", ".opus", ".wma"]:
-            files.extend(args.path.glob(f"*{ext}"))
-            files.extend(args.path.glob(f"*{ext.upper()}"))
-    else:
-        print(f"Errore: percorso non trovato: {args.path}")
-        sys.exit(1)
+    # Controlla anche nella directory dell'eseguibile (per bundle PyInstaller)
+    if getattr(sys, 'frozen', False):
+        bundle_dir = Path(sys.executable).parent
+        ffmpeg_paths.insert(0, str(bundle_dir / "ffmpeg"))
+        ffmpeg_paths.insert(0, str(bundle_dir / ".." / "MacOS" / "ffmpeg"))
     
-    # Analizza
-    results = []
-    for f in files:
+    for path in ffmpeg_paths:
         try:
-            metadata = analyzer.analyze(f)
-            result = engine.check(metadata)
-            results.append(result)
-        except Exception as e:
-            print(f"❌ Errore analizzando {f.name}: {e}")
+            result = subprocess.run(
+                [path, "-version"],
+                capture_output=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                logger.info(f"FFmpeg trovato: {path}")
+                return path
+        except:
+            continue
     
-    # Output
-    if args.json:
-        # JSON output
-        data = []
-        for r in results:
-            data.append({
-                "file": r.filepath.name,
-                "status": r.status.value,
-                "message": r.message,
-                "codec": r.metadata.codec if r.metadata else None,
-                "sample_rate": r.metadata.sample_rate if r.metadata else None,
-                "bit_depth": r.metadata.bit_depth if r.metadata else None,
-            })
-        print(json.dumps(data, indent=2))
-    else:
-        # Human readable
-        print(f"\n{'=' * 60}")
-        print(f"CDJ-Check Report — {len(results)} file analizzati")
-        print(f"{'=' * 60}\n")
-        
-        compatible = sum(1 for r in results if r.is_compatible)
-        convertible = sum(1 for r in results if r.needs_conversion)
-        errors = len(results) - compatible - convertible
-        
-        for r in results:
-            icon = r.status_icon
-            print(f"{icon} {r.filepath.name[:40]:<40} {r.status.value}")
-            if not r.is_compatible:
-                print(f"   └─ {r.message}")
-        
-        print(f"\n{'=' * 60}")
-        print(f"✅ Compatibili: {compatible}")
-        print(f"⚠️  Da convertire: {convertible}")
-        if errors:
-            print(f"❌ Errori: {errors}")
-        print(f"{'=' * 60}")
-
-
-def cli_convert(args):
-    """Comando convert per CLI."""
-    from cdj_check.analyzer import AudioAnalyzer
-    from cdj_check.compatibility import CompatibilityEngine
-    from cdj_check.converter import AudioConverter
-    
-    analyzer = AudioAnalyzer()
-    engine = CompatibilityEngine()
-    converter = AudioConverter(max_workers=min(args.workers, 4))
-    
-    # Raccogli file
-    files = []
-    if args.path.is_file():
-        files = [args.path]
-    elif args.path.is_dir():
-        for ext in [".mp3", ".m4a", ".wav", ".aiff", ".aif", ".flac", ".ogg", ".opus", ".wma"]:
-            files.extend(args.path.glob(f"*{ext}"))
-            files.extend(args.path.glob(f"*{ext.upper()}"))
-    else:
-        print(f"Errore: percorso non trovato: {args.path}")
-        sys.exit(1)
-    
-    print(f"🔍 Analisi di {len(files)} file...")
-    
-    # Analizza
-    results = []
-    for f in files:
-        try:
-            metadata = analyzer.analyze(f)
-            result = engine.check(metadata)
-            results.append(result)
-        except Exception as e:
-            print(f"❌ Errore analizzando {f.name}: {e}")
-    
-    to_convert = [r for r in results if r.needs_conversion]
-    
-    if not to_convert:
-        print("✅ Tutti i file sono già compatibili!")
-        return
-    
-    print(f"⚙️  Conversione di {len(to_convert)} file...")
-    
-    # Converti
-    def on_progress(done: int, total: int):
-        pct = int(100 * done / total)
-        print(f"\r  Progresso: {pct}% ({done}/{total})", end="", flush=True)
-    
-    conversion_results = converter.convert_batch(to_convert, args.output, on_progress)
-    print()  # Newline dopo progress
-    
-    # Riepilogo
-    summary = converter.get_conversion_summary(conversion_results)
-    print(f"\n{'=' * 60}")
-    print(f"✅ Completati: {summary['successful']}")
-    if summary['failed']:
-        print(f"❌ Falliti: {summary['failed']}")
-    print(f"{'=' * 60}")
-    
-    if summary['failed'] > 0:
-        sys.exit(1)
+    return None
 
 
 def main():
-    """Entry point."""
+    """Entry point principale con gestione errori."""
     try:
-        run_cli()
-    except KeyboardInterrupt:
-        print("\n\n👋 Interrotto dall'utente")
-        sys.exit(130)
-    except RuntimeError as e:
-        print(f"\n❌ Errore: {e}")
+        logger.info("="*50)
+        logger.info("Dr. CDJ - Avvio applicazione")
+        logger.info(f"Python: {sys.version}")
+        logger.info(f"Executable: {sys.executable}")
+        logger.info(f"Frozen: {getattr(sys, 'frozen', False)}")
+        logger.info(f"Working dir: {os.getcwd()}")
+        logger.info(f"Log file: {log_file}")
+        logger.info("="*50)
+        
+        # Verifica FFmpeg
+        logger.info("Verifica FFmpeg...")
+        ffmpeg_path = check_ffmpeg()
+        
+        if not ffmpeg_path:
+            error_msg = (
+                "FFmpeg è richiesto per l'analisi audio.\n\n"
+                "Installa FFmpeg:\n"
+                "• macOS: brew install ffmpeg\n"
+                "• Linux: sudo apt-get install ffmpeg\n"
+                "• Windows: ffmpeg.org\n\n"
+                f"Log: {log_file}"
+            )
+            logger.error("FFmpeg non trovato")
+            show_error_native("FFmpeg non trovato", error_msg)
+            sys.exit(1)
+        
+        logger.info("Importazione moduli GUI...")
+        
+        # Importa tkinter
+        try:
+            import tkinter as tk
+            logger.info("tkinter importato")
+        except ImportError as e:
+            logger.error(f"tkinter non disponibile: {e}")
+            show_error_native("Errore GUI", f"tkinter non disponibile. Installa Python con supporto tkinter.\n\n{e}")
+            sys.exit(1)
+        
+        # Importa customtkinter
+        try:
+            import customtkinter as ctk
+            from tkinterdnd2 import TkinterDnD
+            logger.info("customtkinter e tkinterdnd2 importati")
+        except ImportError as e:
+            logger.error(f"Dipendenza mancante: {e}")
+            show_error_native("Dipendenza mancante", f"Librerie GUI non trovate.\n\n{e}")
+            sys.exit(1)
+        
+        logger.info("Importazione GUI principale...")
+        
+        # Importa GUI principale
+        try:
+            from cdj_check.gui import CDJCheckApp
+        except Exception as e:
+            logger.exception("Errore importazione GUI")
+            show_error_native("Errore importazione", f"Impossibile caricare l'interfaccia:\n\n{e}")
+            sys.exit(1)
+        
+        logger.info("Avvio GUI principale...")
+        
+        # Avvia app
+        try:
+            app = CDJCheckApp()
+            app.run()
+        except Exception as e:
+            logger.exception("Errore durante esecuzione GUI")
+            show_error_native("Errore applicazione", f"Errore durante l'esecuzione:\n\n{e}")
+            sys.exit(1)
+        
+    except Exception as e:
+        logger.exception("Errore fatale durante l'avvio")
+        error_details = traceback.format_exc()
+        show_error_native(
+            "Errore di avvio",
+            f"Si è verificato un errore durante l'avvio.\n\n{str(e)}\n\nLog: {log_file}"
+        )
         sys.exit(1)
 
 

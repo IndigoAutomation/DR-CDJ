@@ -349,55 +349,54 @@ INCOMPATIBLE = "incompatible"
 ERROR = "error"
 
 # ============================================================
-# MODERN UI COLORS (Dark Theme Premium)
+# MODERN UI COLORS (Dark Theme — aligned with landing page)
 # ============================================================
 
 COLORS = {
-    # Main colors - Gradients
-    "primary": "#6366f1",           # Indigo 500
-    "primary_light": "#818cf8",     # Indigo 400
-    "primary_dark": "#4f46e5",      # Indigo 600
-    
+    # Main colors — coral brand (CTA, logo, accents)
+    "primary": "#d94f4f",           # Coral
+    "primary_light": "#e06a6a",     # Coral light
+    "primary_dark": "#c96418",      # Peach (gradient end)
+
     # Compatibility states
-    "compatible": "#22c55e",        # Verde 500
-    "compatible_bg": "#14532d",     # Verde 900
-    "convertible_lossless": "#f59e0b",  # Amber 500
-    "convertible_lossless_bg": "#78350f",  # Amber 900
-    "convertible_lossy": "#f97316", # Orange 500
-    "convertible_lossy_bg": "#7c2d12",  # Orange 900
-    "incompatible": "#ef4444",      # Rosso 500
-    "incompatible_bg": "#7f1d1d",   # Rosso 900
-    "error": "#dc2626",             # Rosso 600
-    "error_bg": "#7f1d1d",          # Rosso 900
-    
+    "compatible": "#3db88a",        # Mint
+    "compatible_bg": "#1b2b2b",     # Mint tint on bg-card
+    "convertible_lossless": "#c9a820",  # Sunshine
+    "convertible_lossless_bg": "#2e291d",  # Sunshine tint on bg-card
+    "convertible_lossy": "#c96418", # Peach (warm orange)
+    "convertible_lossy_bg": "#33231e",  # Peach tint on bg-card
+    "incompatible": "#d94f4f",      # Coral
+    "incompatible_bg": "#2f1d23",   # Coral tint on bg-card
+    "error": "#d94f4f",             # Coral
+    "error_bg": "#2f1d23",          # Coral tint on bg-card
+
     # Backgrounds and surfaces
-    "background": "#0f0f11",        # Quasi nero con tinta blu
-    "surface": "#1a1a1f",           # Superficie scura
-    "surface_light": "#25252d",     # Superficie più chiara
-    "surface_hover": "#2d2d38",     # Hover state
-    "border": "#3f3f46",            # Bordi
-    "border_highlight": "#6366f1",  # Bordo evidenziato
-    
+    "background": "#090909",        # Landing --bg
+    "surface": "#18181f",           # Landing --bg-card
+    "surface_light": "#222228",     # rgba(255,255,255,0.08) su bg-card
+    "surface_hover": "#292934",     # rgba(255,255,255,0.10) su bg-card
+    "border": "#1e1e25",            # rgba(255,255,255,0.05) su bg-card
+    "border_highlight": "#d94f4f",  # Coral border
+
     # Text
-    "text": "#fafafa",              # Bianco quasi puro
-    "text_secondary": "#a1a1aa",    # Grigio chiaro
-    "text_muted": "#71717a",        # Grigio muto
-    "text_inverse": "#18181b",      # Testo su sfondo chiaro
-    
+    "text": "#f0f0f0",              # Landing --text
+    "text_secondary": "#8a8a94",    # Landing --text-dim
+    "text_muted": "#5a5a64",        # Landing --text-muted
+    "text_inverse": "#0a0a0d",      # Testo scuro su bottoni chiari (mint/turquoise)
+
     # Accent colors
-    "accent_cyan": "#06b6d4",       # Cyan 500
-    "accent_pink": "#ec4899",       # Pink 500
-    "accent_purple": "#8b5cf6",     # Purple 500
-    "accent_blue": "#3b82f6",       # Blue 500
+    "accent_cyan": "#33a89f",       # Turquoise
+    "accent_purple": "#8b50d4",     # Lavender
+    "accent_blue": "#3080d8",       # Sky
 }
 
-# CDJ profile colors (gradients)
+# CDJ profile colors (gradients) — landing palette
 PROFILE_COLORS = {
-    "cdj_2000_nxs": ("#f59e0b", "#d97706"),    # Amber
-    "cdj_2000_nxs2": ("#ec4899", "#db2777"),  # Pink
-    "cdj_3000": ("#8b5cf6", "#7c3aed"),       # Purple
-    "xdj_1000_mk2": ("#06b6d4", "#0891b2"),   # Cyan
-    "xdj_700": ("#22c55e", "#16a34a"),        # Green
+    "cdj_2000_nxs": ("#c9a820", "#a88a1a"),    # Sunshine
+    "cdj_2000_nxs2": ("#d94f4f", "#c96418"),   # Coral → Peach
+    "cdj_3000": ("#8b50d4", "#6b3aaa"),        # Lavender
+    "xdj_1000_mk2": ("#33a89f", "#2a8a82"),    # Turquoise
+    "xdj_700": ("#3db88a", "#2a9870"),         # Mint
 }
 
 

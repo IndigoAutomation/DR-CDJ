@@ -20,6 +20,13 @@ from dr_cdj.compatibility import CompatibilityEngine, CompatibilityResult, Compa
 from dr_cdj.config import COLORS, CDJ_PROFILES, get_profile_color
 from dr_cdj.converter import AudioConverter, ConversionResult
 
+# Shared style for all convert action buttons
+_CONVERT_BTN_COLORS = {
+    "fg_color": COLORS["compatible"],
+    "hover_color": COLORS["accent_cyan"],
+    "text_color": COLORS["text_inverse"],
+}
+
 
 @dataclass
 class ConversionSettings:
@@ -243,9 +250,7 @@ class FileCard(ctk.CTkFrame):
                 font=("SF Pro Display", 14, "bold"),
                 width=32,
                 height=32,
-                fg_color=COLORS["primary"],
-                hover_color=COLORS["primary_dark"],
-                text_color=COLORS["text"],
+                **_CONVERT_BTN_COLORS,
                 corner_radius=8,
                 command=self._on_convert_click,
             )
@@ -840,9 +845,9 @@ class DrCDJApp:
         self.drop_frame = ctk.CTkFrame(
             self.main_frame,
             fg_color=COLORS["surface"],
-            border_width=2,
+            border_width=1,
             border_color=COLORS["border"],
-            corner_radius=16,
+            corner_radius=20,
             height=100,
         )
         self.drop_frame.grid(row=1, column=0, columnspan=2, sticky="new", pady=(0, 16))
@@ -967,7 +972,7 @@ class DrCDJApp:
         action_bar = ctk.CTkFrame(
             self.main_frame,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=16,
             height=70,
         )
         action_bar.grid(row=4, column=0, columnspan=2, sticky="ew")
@@ -1003,12 +1008,10 @@ class DrCDJApp:
             action_bar,
             text="Convert",
             font=("SF Pro Display", 14, "bold"),
-            fg_color=COLORS["primary"],
-            hover_color=COLORS["primary_dark"],
-            text_color=COLORS["text"],
+            **_CONVERT_BTN_COLORS,
             width=140,
             height=40,
-            corner_radius=10,
+            corner_radius=12,
             command=self._on_convert,
             state="disabled",
         )

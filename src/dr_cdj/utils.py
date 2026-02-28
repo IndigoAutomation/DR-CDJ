@@ -1,5 +1,6 @@
-"""Utility functions per CDJ-Check."""
+"""Utility functions per Dr. CDJ."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -16,6 +17,13 @@ def get_resource_path(filename: str) -> str:
     Returns:
         Path completo al file o solo il filename se non trovato.
     """
+    # Prima controlla le variabili d'ambiente (impostate dal main.py)
+    env_var = f"DR_CDJ_{filename.upper()}_PATH"
+    if env_var in os.environ:
+        path = Path(os.environ[env_var])
+        if path.exists():
+            return str(path)
+    
     # Determina la directory base
     if getattr(sys, 'frozen', False):
         # Siamo in un bundle (PyInstaller)
@@ -28,7 +36,7 @@ def get_resource_path(filename: str) -> str:
             # Fallback: directory dell'eseguibile
             base_path = Path(sys.executable).parent
         
-        # Su macOS, l'eseguibile è in CDJ-Check.app/Contents/MacOS/
+        # Su macOS, l'eseguibile è in Dr-CDJ.app/Contents/MacOS/
         # I binari potrebbero essere lì o in Resources/
         possible_paths = [
             base_path / filename,

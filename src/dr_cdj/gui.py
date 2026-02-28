@@ -15,10 +15,10 @@ except ImportError:
     print("Installa con: pip install customtkinter tkinterdnd2")
     sys.exit(1)
 
-from cdj_check.analyzer import AudioAnalyzer, AudioMetadata
-from cdj_check.compatibility import CompatibilityEngine, CompatibilityResult, CompatibilityStatus, ConversionPlan
-from cdj_check.config import COLORS, CDJ_PROFILES, get_profile_color
-from cdj_check.converter import AudioConverter, ConversionResult
+from dr_cdj.analyzer import AudioAnalyzer, AudioMetadata
+from dr_cdj.compatibility import CompatibilityEngine, CompatibilityResult, CompatibilityStatus, ConversionPlan
+from dr_cdj.config import COLORS, CDJ_PROFILES, get_profile_color
+from dr_cdj.converter import AudioConverter, ConversionResult
 
 
 @dataclass
@@ -1165,7 +1165,7 @@ class CDJCheckApp:
                     is_lossy=False,
                     is_float=False,
                 )
-                from cdj_check.compatibility import CompatibilityStatus
+                from dr_cdj.compatibility import CompatibilityStatus
                 result = CompatibilityResult(
                     filepath=path,
                     metadata=metadata,

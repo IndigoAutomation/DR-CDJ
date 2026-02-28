@@ -4,9 +4,9 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cdj_check.analyzer import AudioMetadata
-from cdj_check.compatibility import CompatibilityResult, CompatibilityStatus, ConversionPlan
-from cdj_check.converter import AudioConverter, ConversionResult
+from dr_cdj.analyzer import AudioMetadata
+from dr_cdj.compatibility import CompatibilityResult, CompatibilityStatus, ConversionPlan
+from dr_cdj.converter import AudioConverter, ConversionResult
 
 
 class TestAudioConverter:

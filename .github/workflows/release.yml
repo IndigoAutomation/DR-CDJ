@@ -58,8 +58,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./dist/CDJ-Check.exe
-          asset_name: CDJ-Check-Windows.exe
+          asset_path: ./dist/Dr-CDJ.exe
+          asset_name: Dr-CDJ-Windows.exe
           asset_content_type: application/octet-stream
 
   build-macos:
@@ -90,13 +90,13 @@ jobs:
         run: |
           brew install create-dmg
           create-dmg \
-            --volname "CDJ-Check" \
+            --volname "Dr. CDJ" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
             --app-drop-link 600 185 \
-            "CDJ-Check-macOS.dmg" \
-            "dist/CDJ-Check.app"
+            "Dr-CDJ-macOS.dmg" \
+            "dist/Dr-CDJ.app"
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -104,8 +104,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./CDJ-Check-macOS.dmg
-          asset_name: CDJ-Check-macOS.dmg
+          asset_path: ./Dr-CDJ-macOS.dmg
+          asset_name: Dr-CDJ-macOS.dmg
           asset_content_type: application/x-apple-diskimage
 
   build-linux:
@@ -140,8 +140,8 @@ jobs:
           chmod +x appimagetool-x86_64.AppImage
           # Creazione AppImage structure and build
           # Questo è un placeholder - da implementare con struttura completa
-          cp dist/CDJ-Check CDJ-Check-Linux
-          chmod +x CDJ-Check-Linux
+          cp dist/Dr-CDJ Dr-CDJ-Linux
+          chmod +x Dr. CDJ-Linux
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -149,6 +149,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./CDJ-Check-Linux
-          asset_name: CDJ-Check-Linux
+          asset_path: ./Dr. CDJ-Linux
+          asset_name: Dr. CDJ-Linux
           asset_content_type: application/octet-stream

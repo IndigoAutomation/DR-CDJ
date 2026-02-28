@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cdj_check.analyzer import AudioAnalyzer, AudioMetadata
+from dr_cdj.analyzer import AudioAnalyzer, AudioMetadata
 
 
 class TestAudioAnalyzer:

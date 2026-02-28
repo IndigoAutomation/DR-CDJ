@@ -5,8 +5,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from cdj_check.analyzer import AudioMetadata
-from cdj_check.config import (
+from dr_cdj.analyzer import AudioMetadata
+from dr_cdj.config import (
     CDJ_PROFILES,
     CONVERTIBLE_FORMATS,
     DEFAULT_PROFILE,
@@ -78,7 +78,7 @@ class CompatibilityResult:
     @property
     def status_color(self) -> str:
         """Colore associato allo stato."""
-        from cdj_check.config import COLORS
+        from dr_cdj.config import COLORS
         colors = {
             CompatibilityStatus.COMPATIBLE: COLORS["compatible"],
             CompatibilityStatus.CONVERTIBLE_LOSSLESS: COLORS["convertible_lossless"],
@@ -91,7 +91,7 @@ class CompatibilityResult:
     @property
     def status_bg_color(self) -> str:
         """Colore di sfondo associato allo stato."""
-        from cdj_check.config import COLORS
+        from dr_cdj.config import COLORS
         colors = {
             CompatibilityStatus.COMPATIBLE: COLORS["compatible_bg"],
             CompatibilityStatus.CONVERTIBLE_LOSSLESS: COLORS["convertible_lossless_bg"],

@@ -15,7 +15,7 @@ Questa cartella contiene le icone dell'applicazione CDJ-Check.
 
 ### Metodo 1: Linea di comando
 ```bash
-pyinstaller --windowed --name="CDJ-Check" --icon=CDJ-Check.icns src/cdj_check/gui.py
+pyinstaller --windowed --name="CDJ-Check" --icon=CDJ-Check.icns src/dr_cdj/gui.py
 ```
 
 ### Metodo 2: File .spec

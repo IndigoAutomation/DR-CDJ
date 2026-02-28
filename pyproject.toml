@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dr-cdj"
 version = "0.1.0"
-description = "Audio Compatibility Checker & Converter per Pioneer CDJ-2000 Nexus"
+description = "Dr. CDJ - Audio Compatibility Checker & Converter per Pioneer CDJ"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "CDJ-Check Team"}
+    {name = "Dr. CDJ Team"}
 ]
 keywords = ["audio", "dj", "cdj", "pioneer", "converter", "compatibility"]
 classifiers = [
@@ -37,7 +37,7 @@ dev = [
 ]
 
 [project.scripts]
-cdj-check = "cdj_check.main:main"
+dr-cdj = "dr_cdj.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

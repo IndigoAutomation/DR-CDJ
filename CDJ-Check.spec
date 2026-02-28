@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='CDJ-Check',
+    name='Dr. CDJ',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -38,7 +38,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='CDJ-Check.app',
-    icon='CDJ-Check.icns',
+    name='Dr. CDJ.app',
+    icon='Dr. CDJ.icns',
     bundle_identifier='com.cdjcheck.app',
 )

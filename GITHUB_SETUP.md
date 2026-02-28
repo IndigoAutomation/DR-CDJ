@@ -1,6 +1,6 @@
-# 🚀 Setup GitHub per CDJ-Check
+# 🚀 Setup GitHub per Dr. CDJ
 
-Questo documento ti guida nel completare la pubblicazione di CDJ-Check su GitHub.
+Questo documento ti guida nel completare la pubblicazione di Dr. CDJ su GitHub.
 
 ## ✅ Cosa è già stato fatto
 
@@ -18,7 +18,7 @@ Questo documento ti guida nel completare la pubblicazione di CDJ-Check su GitHub
 ```bash
 # Crea prima la repository su GitHub (senza README)
 # Vai su: https://github.com/new
-# - Nome: cdj-check
+# - Nome: dr-cdj
 # - Descrizione: 🎵 Audio Compatibility Checker & Converter for Pioneer CDJ-2000 Nexus
 # - Public
 # - NON inizializzare con README
@@ -31,11 +31,11 @@ Questo documento ti guida nel completare la pubblicazione di CDJ-Check su GitHub
 
 ```bash
 # 1. Crea la repository su GitHub (https://github.com/new)
-#    Nome: cdj-check
+#    Nome: dr-cdj
 #    Descrizione: 🎵 Audio Compatibility Checker & Converter for Pioneer CDJ-2000 Nexus
 
 # 2. Aggiungi il remote
-git remote add origin https://github.com/filippoitaliano/cdj-check.git
+git remote add origin https://github.com/filippoitaliano/dr-cdj.git
 
 # 3. Pusha il codice
 git branch -M main
@@ -48,7 +48,7 @@ git push -u origin main
 2. File → Add Local Repository
 3. Seleziona la cartella `CDJCHECK`
 4. Clicca "Publish repository"
-5. Imposta nome: `cdj-check`
+5. Imposta nome: `dr-cdj`
 6. Descrizione: `🎵 Audio Compatibility Checker & Converter for Pioneer CDJ-2000 Nexus`
 7. Clicca "Publish Repository"
 
@@ -111,9 +111,9 @@ Dopo il push, avrai:
 
 ## 🔗 Link Utili
 
-- Repository: https://github.com/filippoitaliano/cdj-check
-- Nuova Release: https://github.com/filippoitaliano/cdj-check/releases/new
-- Issues: https://github.com/filippoitaliano/cdj-check/issues
+- Repository: https://github.com/filippoitaliano/dr-cdj
+- Nuova Release: https://github.com/filippoitaliano/dr-cdj/releases/new
+- Issues: https://github.com/filippoitaliano/dr-cdj/issues
 
 ## 💬 Prossimi Passi Consigliati
 

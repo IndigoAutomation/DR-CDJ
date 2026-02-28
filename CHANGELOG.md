@@ -23,7 +23,7 @@ e questo progetto aderisce a [Semantic Versioning](https://semver.org/spec/v2.0.
 ## [0.1.0] - 2026-02-28
 
 ### Added
-- 🎉 Release iniziale di CDJ-Check
+- 🎉 Release iniziale di Dr. CDJ
 - Verifica compatibilità per Pioneer CDJ-2000 Nexus
 - Conversione intelligente preservando massima qualità
 - GUI drag-and-drop con CustomTkinter
@@ -62,5 +62,5 @@ e questo progetto aderisce a [Semantic Versioning](https://semver.org/spec/v2.0.
 - Fix di sicurezza
 ```
 
-[Unreleased]: https://github.com/filippoitaliano/cdj-check/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/filippoitaliano/cdj-check/releases/tag/v0.1.0
+[Unreleased]: https://github.com/filippoitaliano/dr-cdj/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/filippoitaliano/dr-cdj/releases/tag/v0.1.0

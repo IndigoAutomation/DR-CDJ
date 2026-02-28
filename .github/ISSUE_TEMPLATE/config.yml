@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 Discussions
-    url: https://github.com/yourusername/cdj-check/discussions
+    url: https://github.com/yourusername/dr-cdj/discussions
     about: Per domande generali, idee da discutere, o supporto utente
   - name: 📖 Documentazione
-    url: https://github.com/yourusername/cdj-check/blob/main/README.md
+    url: https://github.com/yourusername/dr-cdj/blob/main/README.md
     about: Consulta la documentazione prima di aprire una issue
   - name: 🤝 Contributing
-    url: https://github.com/yourusername/cdj-check/blob/main/CONTRIBUTING.md
+    url: https://github.com/yourusername/dr-cdj/blob/main/CONTRIBUTING.md
     about: Vuoi contribuire? Leggi la guida per i contributor

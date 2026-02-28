@@ -64,7 +64,7 @@ jobs:
           ruff format src/ --check
 
       - name: Run tests
-        run: pytest --cov=cdj_check --cov-report=xml --cov-report=term
+        run: pytest --cov=dr_cdj --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'

@@ -13,11 +13,11 @@ body:
       label: Prerequisiti
       description: Assicurati di aver soddisfatto questi requisiti prima di segnalare il bug.
       options:
-        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/cdj-check/issues) per evitare duplicati
+        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/dr-cdj/issues) per evitare duplicati
           required: true
-        - label: Sto usando l'ultima versione di CDJ-Check
+        - label: Sto usando l'ultima versione di Dr. CDJ
           required: true
-        - label: Ho letto la [documentazione](https://github.com/filippoitaliano/cdj-check/blob/main/README.md)
+        - label: Ho letto la [documentazione](https://github.com/filippoitaliano/dr-cdj/blob/main/README.md)
           required: true
 
   - type: textarea
@@ -34,7 +34,7 @@ body:
       label: Passaggi per riprodurre
       description: Passaggi specifici per riprodurre il comportamento
       placeholder: |
-        1. Avvia CDJ-Check
+        1. Avvia Dr. CDJ
         2. Trascina un file FLAC nella drop zone
         3. Clicca su "Converti"
         4. L'app si blocca
@@ -62,7 +62,7 @@ body:
   - type: dropdown
     attributes:
       label: Sistema Operativo
-      description: Su quale sistema operativo stai eseguendo CDJ-Check?
+      description: Su quale sistema operativo stai eseguendo Dr. CDJ?
       options:
         - Windows 10
         - Windows 11
@@ -83,8 +83,8 @@ body:
 
   - type: input
     attributes:
-      label: Versione CDJ-Check
-      description: Quale versione di CDJ-Check stai usando?
+      label: Versione Dr. CDJ
+      description: Quale versione di Dr. CDJ stai usando?
       placeholder: "es. 0.1.0"
     validations:
       required: true

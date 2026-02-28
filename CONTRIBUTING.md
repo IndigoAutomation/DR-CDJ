@@ -1,6 +1,6 @@
 # 🤝 Guida per i Contributor
 
-Grazie per il tuo interesse nel contribuire a CDJ-Check! Questo documento ti guiderà attraverso il processo di contribuzione.
+Grazie per il tuo interesse nel contribuire a Dr. CDJ! Questo documento ti guiderà attraverso il processo di contribuzione.
 
 ---
 
@@ -28,13 +28,13 @@ Questo progetto aderisce al [Codice di Condotta](CODE_OF_CONDUCT.md). Partecipan
 ### Segnalare Bug
 
 Prima di segnalare un bug:
-1. 🔍 Cerca nelle [issues esistenti](https://github.com/filippoitaliano/cdj-check/issues) per evitare duplicati
+1. 🔍 Cerca nelle [issues esistenti](https://github.com/filippoitaliano/dr-cdj/issues) per evitare duplicati
 2. 📝 Raccogli informazioni: versione Python, sistema operativo, log di errore
 3. 🎯 Crea una issue usando il template "Bug Report"
 
 ### Suggerire Feature
 
-Hai un'idea per migliorare CDJ-Check?
+Hai un'idea per migliorare Dr. CDJ?
 1. 💭 Descrivi chiaramente la feature e il problema che risolve
 2. 🎯 Spiega perché sarebbe utile per i DJ/producer
 3. 📝 Apri una issue usando il template "Feature Request"
@@ -60,8 +60,8 @@ Hai un'idea per migliorare CDJ-Check?
 
 ```bash
 # 1. Clona il tuo fork
-git clone https://github.com/YOUR_USERNAME/cdj-check.git
-cd cdj-check
+git clone https://github.com/YOUR_USERNAME/dr-cdj.git
+cd dr-cdj
 
 # 2. Crea virtual environment
 python -m venv .venv
@@ -234,7 +234,7 @@ refactor(converter): extract ffmpeg command builder
 # tests/test_analyzer.py
 import pytest
 from pathlib import Path
-from cdj_check.analyzer import analyze_file
+from dr_cdj.analyzer import analyze_file
 
 def test_analyze_mp3_valid(sample_audio_dir: Path):
     """Test analisi file MP3 valido."""
@@ -248,7 +248,7 @@ def test_analyze_mp3_valid(sample_audio_dir: Path):
 Manteniamo coverage > 80%:
 
 ```bash
-pytest --cov=cdj_check --cov-report=html
+pytest --cov=dr_cdj --cov-report=html
 ```
 
 ### Mocking FFmpeg
@@ -273,7 +273,7 @@ def test_analyze_file_mocked():
 ## 📚 Risorse
 
 - [AGENTS.md](AGENTS.md) — Informazioni per AI agents
-- [CDJ-Check_PRD.md](CDJ-Check_PRD.md) — Product Requirements Document
+- [Dr. CDJ_PRD.md](Dr. CDJ_PRD.md) — Product Requirements Document
 - [Python Style Guide](https://google.github.io/styleguide/pyguide.html)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 
@@ -281,10 +281,10 @@ def test_analyze_file_mocked():
 
 ## ❓ Domande?
 
-- 💬 [Discussions](https://github.com/filippoitaliano/cdj-check/discussions) — Per domande generali
-- 🐛 [Issues](https://github.com/filippoitaliano/cdj-check/issues) — Per bug e feature request
+- 💬 [Discussions](https://github.com/filippoitaliano/dr-cdj/discussions) — Per domande generali
+- 🐛 [Issues](https://github.com/filippoitaliano/dr-cdj/issues) — Per bug e feature request
 - 📧 Email: demos.indigo@gmail.com
 
 ---
 
-**Grazie per contribuire a CDJ-Check! 🎵**
+**Grazie per contribuire a Dr. CDJ! 🎵**

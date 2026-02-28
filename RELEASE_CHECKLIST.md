@@ -16,10 +16,10 @@
 rm -rf build dist
 
 # Build
-pyinstaller CDJ-Check.spec
+pyinstaller Dr. CDJ.spec
 
 # Verifica icona
-ls -la dist/CDJ-Check.app/Contents/Resources/*.icns
+ls -la dist/Dr. CDJ.app/Contents/Resources/*.icns
 
 # Crea DMG
 ./create-dmg.sh
@@ -35,7 +35,7 @@ pyinstaller --onefile src/cdj_check/gui.py
 ### Windows
 ```bash
 # Build EXE
-pyinstaller --windowed --icon=assets/logo_256.ico CDJ-Check.spec
+pyinstaller --windowed --icon=assets/logo_256.ico Dr. CDJ.spec
 ```
 
 ## GitHub Release
@@ -46,9 +46,9 @@ pyinstaller --windowed --icon=assets/logo_256.ico CDJ-Check.spec
 4. Seleziona tag `v1.0.0`
 5. Aggiungi release notes
 6. Upload assets:
-   - CDJ-Check-1.0.0-macOS.dmg
-   - CDJ-Check-1.0.0-linux.AppImage
-   - CDJ-Check-1.0.0-windows.exe
+   - Dr. CDJ-1.0.0-macOS.dmg
+   - Dr. CDJ-1.0.0-linux.AppImage
+   - Dr. CDJ-1.0.0-windows.exe
 
 ## Landing Page
 
@@ -59,7 +59,7 @@ Aggiorna landing page con:
 - [ ] Installazione rapida
 
 ```html
-<a href="https://github.com/tuousername/cdj-check/releases/latest/download/CDJ-Check-macOS.dmg">
+<a href="https://github.com/tuousername/dr-cdj/releases/latest/download/Dr. CDJ-macOS.dmg">
   Download for macOS
 </a>
 ```

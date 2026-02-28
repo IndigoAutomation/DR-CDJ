@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CDJ-Check Setup
+Dr. CDJ Setup
 ===============
 Script di setup per lo sviluppo e la distribuzione.
 """
@@ -11,14 +11,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="cdj-check",
-    version="1.0.0",
-    author="CDJ-Check Team",
+    name="dr-cdj",
+    version="1.0.1",
+    author="Dr. CDJ Team",
     author_email="",
-    description="Audio Compatibility Checker & Converter per Pioneer CDJ",
+    description="Dr. CDJ - Audio Compatibility Checker & Converter per Pioneer CDJ",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/tuousername/cdj-check",
+    url="https://github.com/IndigoAutomation/Dr-CDJ",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
@@ -47,12 +47,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "cdj-check=cdj_check.main:main",
-            "cdj-check-gui=cdj_check.gui:main",
+            "dr-cdj=dr_cdj.main:main",
+            "dr-cdj-gui=dr_cdj.gui:main",
         ],
     },
     include_package_data=True,
     package_data={
-        "cdj_check": ["*.icns", "*.png"],
+        "dr_cdj": ["*.icns", "*.png"],
     },
 )

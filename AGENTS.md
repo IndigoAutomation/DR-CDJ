@@ -1,13 +1,13 @@
-# 🤖 Agents.md — Guida Operativa per CDJ-Check
+# 🤖 Agents.md — Guida Operativa per Dr. CDJ
 
-> Questo file è il tuo riferimento principale per lavorare sul progetto **CDJ-Check**.
+> Questo file è il tuo riferimento principale per lavorare sul progetto **Dr. CDJ**.
 > **Stack:** Python 3.11+ · CustomTkinter · FFmpeg · pytest · Ruff
 
 ---
 
 ## 1. 🎵 Panoramica Progetto
 
-**CDJ-Check** è un tool desktop per verificare e convertire file audio per la compatibilità con il Pioneer CDJ-2000 Nexus.
+**Dr. CDJ** è un tool desktop per verificare e convertire file audio per la compatibilità con il Pioneer CDJ-2000 Nexus.
 
 ### Caratteristiche principali:
 - **GUI drag-and-drop** con CustomTkinter (dark mode, look moderno)
@@ -23,8 +23,8 @@
 ### Struttura Directory
 
 ```
-cdj-check/
-├── src/cdj_check/           # Codice sorgente principale
+dr-cdj/
+├── src/dr_cdj/           # Codice sorgente principale
 │   ├── __init__.py
 │   ├── main.py              # Entry point CLI/GUI
 │   ├── gui.py               # Interfaccia CustomTkinter + drag-and-drop
@@ -36,7 +36,7 @@ cdj-check/
 ├── tests/                   # Test suite (pytest)
 ├── hooks/                   # Hook PyInstaller
 ├── build.py                 # Script build bundle
-├── CDJ-Check.spec           # Configurazione PyInstaller
+├── Dr. CDJ.spec           # Configurazione PyInstaller
 ├── pyproject.toml           # Configurazione progetto
 ├── requirements.txt         # Dipendenze runtime
 └── requirements-dev.txt     # Dipendenze sviluppo
@@ -154,7 +154,7 @@ if result.returncode != 0:
 
 ```bash
 # 1. Clona repo
-cd cdj-check
+cd dr-cdj
 
 # 2. Crea virtual environment
 python -m venv .venv
@@ -172,11 +172,11 @@ ffprobe -version
 ### Ciclo di Sviluppo
 
 ```
-1. Modifica codice in src/cdj_check/
+1. Modifica codice in src/dr_cdj/
 2. Esegui test: pytest
 3. Linting: ruff check src/
 4. Formatta: ruff format src/
-5. Test manuale GUI: python -m cdj_check.main --gui
+5. Test manuale GUI: python -m dr_cdj.main --gui
 6. Commit con convenzione (vedi sezione Git)
 ```
 
@@ -187,7 +187,7 @@ ffprobe -version
 pytest
 
 # Con coverage
-pytest --cov=cdj_check --cov-report=html
+pytest --cov=dr_cdj --cov-report=html
 
 # Test specifico
 pytest tests/test_analyzer.py -v
@@ -202,7 +202,7 @@ pytest -v --tb=short
 # Build completo con PyInstaller
 python build.py
 
-# Output in: dist/CDJ-Check.app (macOS) o dist/CDJ-Check.exe (Windows)
+# Output in: dist/Dr. CDJ.app (macOS) o dist/Dr. CDJ.exe (Windows)
 ```
 
 ---
@@ -289,7 +289,7 @@ Tipi:
   test     → aggiunta o modifica test
   chore    → config, dipendenze, build
 
-Scope comuni per CDJ-Check:
+Scope comuni per Dr. CDJ:
   gui      → interfaccia utente
   analyzer → analisi audio
   converter → conversione ffmpeg
@@ -358,7 +358,7 @@ def sample_audio_dir() -> Path:
 @pytest.fixture
 def mock_cdj_profile():
     """Profilo CDJ-2000 Nexus per test."""
-    from cdj_check.config import CDJProfile
+    from dr_cdj.config import CDJProfile
     return CDJProfile.nxs1()
 ```
 
@@ -383,7 +383,7 @@ def test_analyze_file_mocked():
 ## 9. 📋 Checklist per Task
 
 ### Nuova Feature
-- [ ] Ho letto il PRD (`CDJ-Check_PRD.md`)
+- [ ] Ho letto il PRD (`Dr. CDJ_PRD.md`)
 - [ ] Ho identificato il modulo/i da modificare
 - [ ] Ho scritto i test prima/durante lo sviluppo
 - [ ] Ho gestito gli edge case (file corrotti, mancanza FFmpeg, etc.)
@@ -428,14 +428,14 @@ from tkinterdnd2 import TkinterDnD, DND_FILES
 ### Problema: Build PyInstaller fallisce
 **Soluzione:** 
 1. Pulisci cache: `rm -rf build/ dist/`
-2. Verifica spec file: `CDJ-Check.spec`
+2. Verifica spec file: `Dr. CDJ.spec`
 3. Riprova: `python build.py`
 
 ---
 
 ## 11. 📚 Risorse Utili
 
-- **PRD:** `CDJ-Check_PRD.md` — Requisiti prodotto
+- **PRD:** `Dr. CDJ_PRD.md` — Requisiti prodotto
 - **README:** `README.md` — Documentazione utente
 - **FFmpeg docs:** https://ffmpeg.org/documentation.html
 - **CustomTkinter:** https://github.com/TomSchimansky/CustomTkinter
@@ -444,5 +444,5 @@ from tkinterdnd2 import TkinterDnD, DND_FILES
 ---
 
 > **Ultimo aggiornamento:** Febbraio 2026
-> **Progetto:** CDJ-Check v0.1.0
-> **Maintainer:** CDJ-Check Team
+> **Progetto:** Dr. CDJ v0.1.0
+> **Maintainer:** Dr. CDJ Team

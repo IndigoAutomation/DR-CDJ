@@ -3,8 +3,8 @@
 import pytest
 from pathlib import Path
 
-from cdj_check.analyzer import AudioMetadata
-from cdj_check.compatibility import (
+from dr_cdj.analyzer import AudioMetadata
+from dr_cdj.compatibility import (
     CompatibilityEngine,
     CompatibilityResult,
     CompatibilityStatus,

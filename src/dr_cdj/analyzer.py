@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from cdj_check.config import FFPROBE_TIMEOUT
-from cdj_check.utils import get_ffprobe_path
+from dr_cdj.config import FFPROBE_TIMEOUT
+from dr_cdj.utils import get_ffprobe_path
 
 
 @dataclass

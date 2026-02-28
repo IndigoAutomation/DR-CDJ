@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CDJ-Check - Installer
+Dr. CDJ - Installer
 =====================
-Script di installazione automatica per CDJ-Check.
+Script di installazione automatica per Dr. CDJ.
 Verifica Python, installa dipendenze e configura l'ambiente.
 """
 
@@ -109,14 +109,14 @@ def install_dependencies():
 
 def install_package():
     """Installa il pacchetto CDJ-Check in modalità sviluppo."""
-    print("\n🔧 Installazione CDJ-Check...")
+    print("\n🔧 Installazione Dr. CDJ...")
     
     try:
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-q", "-e", "."],
             check=True
         )
-        print("   ✅ CDJ-Check installato")
+        print("   ✅ Dr. CDJ installato")
         return True
     except subprocess.CalledProcessError as e:
         print(f"   ❌ Errore: {e}")
@@ -128,12 +128,12 @@ def create_launcher():
     print("\n🚀 Creazione launcher...")
     
     launcher_content = """#!/bin/bash
-# CDJ-Check Launcher
+# Dr. CDJ Launcher
 cd "$(dirname "$0")"
-python3 -m cdj_check.gui
+python3 -m dr_cdj.gui
 """
     
-    launcher_path = Path("cdj-check.sh")
+    launcher_path = Path("dr-cdj.sh")
     with open(launcher_path, "w") as f:
         f.write(launcher_content)
     
@@ -143,12 +143,12 @@ python3 -m cdj_check.gui
     
     # Crea anche .command per macOS (doppio click)
     command_content = """#!/bin/bash
-# CDJ-Check - Doppio click per avviare
+# Dr. CDJ - Doppio click per avviare
 cd "$(dirname "$0")"
-python3 -m cdj_check.gui &
+python3 -m dr_cdj.gui &
 """
     
-    command_path = Path("CDJ-Check.command")
+    command_path = Path("Dr-CDJ.command")
     with open(command_path, "w") as f:
         f.write(command_content)
     
@@ -160,7 +160,7 @@ def main():
     """Funzione principale."""
     print("""
 ╔═══════════════════════════════════════════╗
-║         CDJ-Check Installer               ║
+║         Dr. CDJ Installer                 ║
 ║    Audio Compatibility Checker            ║
 ╚═══════════════════════════════════════════╝
 """)
@@ -191,19 +191,19 @@ def main():
 ║     ✅ Installazione Completata!          ║
 ╚═══════════════════════════════════════════╝
 
-🎵 Per avviare CDJ-Check:
+🎵 Per avviare Dr. CDJ:
 
    Terminale:
-     cdj-check
+     dr-cdj
      # oppure
-     python3 -m cdj_check.gui
+     python3 -m dr_cdj.gui
 
    Doppio click (macOS):
-     CDJ-Check.command
+     Dr-CDJ.command
 
 📁 File creati:
-   • cdj-check.sh      - Launcher Linux/macOS
-   • CDJ-Check.command - Launcher macOS (doppio click)
+   • dr-cdj.sh      - Launcher Linux/macOS
+   • Dr-CDJ.command - Launcher macOS (doppio click)
 """)
     
     if not ffmpeg_ok:

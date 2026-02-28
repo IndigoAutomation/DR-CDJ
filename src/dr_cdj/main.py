@@ -126,7 +126,7 @@ def main():
         
         # Importa GUI principale
         try:
-            from cdj_check.gui import CDJCheckApp
+            from dr_cdj.gui import CDJCheckApp
         except Exception as e:
             logger.exception("Errore importazione GUI")
             show_error_native("Errore importazione", f"Impossibile caricare l'interfaccia:\n\n{e}")

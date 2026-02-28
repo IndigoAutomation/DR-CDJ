@@ -6,16 +6,16 @@ body:
   - type: markdown
     attributes:
       value: |
-        Grazie per voler migliorare CDJ-Check! Compila questo form per proporre la tua idea.
+        Grazie per voler migliorare Dr. CDJ! Compila questo form per proporre la tua idea.
 
   - type: checkboxes
     attributes:
       label: Prerequisiti
       description: Assicurati di aver soddisfatto questi requisiti.
       options:
-        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/cdj-check/issues) per evitare duplicati
+        - label: Ho cercato nelle [issues esistenti](https://github.com/filippoitaliano/dr-cdj/issues) per evitare duplicati
           required: true
-        - label: Ho letto la [roadmap](https://github.com/filippoitaliano/cdj-check#roadmap)
+        - label: Ho letto la [roadmap](https://github.com/filippoitaliano/dr-cdj#roadmap)
           required: true
 
   - type: textarea
@@ -32,7 +32,7 @@ body:
       label: Descrivi la soluzione desiderata
       description: Una descrizione chiara di cosa vuoi che accada
       placeholder: |
-        Vorrei che CDJ-Check supportasse anche il CDJ-3000 con i suoi formati nativi...
+        Vorrei che Dr. CDJ supportasse anche il CDJ-3000 con i suoi formati nativi...
     validations:
       required: true
 
@@ -41,7 +41,7 @@ body:
       label: Descrivi le alternative considerate
       description: Una descrizione di qualsiasi soluzione alternativa o feature che hai considerato
       placeholder: |
-        Ho pensato di usare un altro tool, ma CDJ-Check è più completo...
+        Ho pensato di usare un altro tool, ma Dr. CDJ è più completo...
 
   - type: dropdown
     attributes:

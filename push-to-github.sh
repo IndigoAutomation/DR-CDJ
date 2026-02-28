@@ -1,9 +1,9 @@
 #!/bin/bash
-# Script per pushare CDJ-Check su GitHub
+# Script per pushare Dr. CDJ su GitHub
 
 set -e
 
-echo "🚀 CDJ-Check GitHub Push Script"
+echo "🚀 Dr. CDJ GitHub Push Script"
 echo "================================"
 echo ""
 
@@ -14,7 +14,7 @@ if [ ! -d ".git" ]; then
 fi
 
 # Chiedi conferma username
-echo "Il repository verrà pushato su: https://github.com/filippoitaliano/cdj-check"
+echo "Il repository verrà pushato su: https://github.com/filippoitaliano/dr-cdj"
 echo ""
 read -p "Premi INVIO per continuare o Ctrl+C per annullare..."
 
@@ -22,7 +22,7 @@ read -p "Premi INVIO per continuare o Ctrl+C per annullare..."
 echo ""
 echo "🔧 Configurazione remote..."
 git remote remove origin 2>/dev/null || true
-git remote add origin https://github.com/filippoitaliano/cdj-check.git
+git remote add origin https://github.com/filippoitaliano/dr-cdj.git
 
 # Assicurati di essere su main
 git branch -M main
@@ -35,4 +35,4 @@ git push -u origin main
 echo ""
 echo "✅ Push completato con successo!"
 echo ""
-echo "🌐 Visita la tua repository: https://github.com/filippoitaliano/cdj-check"
+echo "🌐 Visita la tua repository: https://github.com/filippoitaliano/dr-cdj"

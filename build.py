@@ -53,7 +53,7 @@ def build_macos():
         # "--icon", "assets/icon.icns",
         # Nascondi terminale
         "--osx-bundle-identifier", "com.cdjcheck.app",
-        "src/cdj_check/main.py",
+        "src/dr_cdj/main.py",
     ]
     
     print(f"Eseguendo: {' '.join(cmd)}")
@@ -84,7 +84,7 @@ def build_windows():
         "--add-binary", f"{ffprobe};.",
         "--additional-hooks-dir", "hooks",
         # "--icon", "assets/icon.ico",
-        "src/cdj_check/main.py",
+        "src/dr_cdj/main.py",
     ]
     
     print(f"Eseguendo: {' '.join(cmd)}")
@@ -114,7 +114,7 @@ def build_linux():
         "--add-binary", f"{ffmpeg}:.",
         "--add-binary", f"{ffprobe}:.",
         "--additional-hooks-dir", "hooks",
-        "src/cdj_check/main.py",
+        "src/dr_cdj/main.py",
     ]
     
     print(f"Eseguendo: {' '.join(cmd)}")

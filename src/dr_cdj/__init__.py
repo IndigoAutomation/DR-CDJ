@@ -3,9 +3,9 @@
 __version__ = "0.1.0"
 __author__ = "CDJ-Check Team"
 
-from cdj_check.analyzer import AudioAnalyzer
-from cdj_check.compatibility import CompatibilityEngine, CompatibilityResult
-from cdj_check.utils import get_ffmpeg_path, get_ffprobe_path, get_resource_path
+from dr_cdj.analyzer import AudioAnalyzer
+from dr_cdj.compatibility import CompatibilityEngine, CompatibilityResult
+from dr_cdj.utils import get_ffmpeg_path, get_ffprobe_path, get_resource_path
 
 __all__ = [
     "AudioAnalyzer",

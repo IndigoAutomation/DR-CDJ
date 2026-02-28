@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-from cdj_check.analyzer import AudioMetadata
-from cdj_check.compatibility import CompatibilityResult, ConversionPlan
-from cdj_check.config import FFMPEG_TIMEOUT, CDJ_PROFILES
-from cdj_check.utils import get_ffmpeg_path
+from dr_cdj.analyzer import AudioMetadata
+from dr_cdj.compatibility import CompatibilityResult, ConversionPlan
+from dr_cdj.config import FFMPEG_TIMEOUT, CDJ_PROFILES
+from dr_cdj.utils import get_ffmpeg_path
 
 
 @dataclass

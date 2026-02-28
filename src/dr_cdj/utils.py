@@ -108,12 +108,17 @@ def get_resource_path(filename: str) -> str:
             except (OSError, RuntimeError):
                 continue
     
-    # 3. Cerca nel PATH di sistema
+    # 3. Cerca nella directory locale dell'app (~/.dr_cdj/bin)
+    local_dir = Path.home() / ".dr_cdj" / "bin" / filename
+    if local_dir.exists() and verify_ffmpeg(str(local_dir)):
+        return str(local_dir)
+    
+    # 4. Cerca nel PATH di sistema
     system_path = shutil.which(filename)
     if system_path and verify_ffmpeg(system_path):
         return system_path
     
-    # 4. Fallback: restituisci il nome (permette errore graceful)
+    # 5. Fallback: restituisci il nome (permette errore graceful)
     return filename
 
 

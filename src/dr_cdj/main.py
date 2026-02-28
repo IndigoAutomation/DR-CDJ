@@ -159,11 +159,9 @@ def setup_ffmpeg() -> bool:
     Setup FFmpeg for the application.
     
     Priority:
-    1. System FFmpeg (from PATH) - most reliable
-    2. Download FFmpeg (works on clean macOS)
-    
-    Note: Bundled FFmpeg is blocked by Gatekeeper on macOS,
-    so we download fresh copies which don't have quarantine attributes.
+    1. Previously downloaded FFmpeg (~/.dr_cdj/bin/) - fastest
+    2. System FFmpeg (from PATH)
+    3. Download FFmpeg (works on clean macOS)
     
     Returns:
         True if FFmpeg is ready to use
@@ -171,7 +169,19 @@ def setup_ffmpeg() -> bool:
     from dr_cdj.utils import verify_ffmpeg
     import shutil
     
-    # 1. Try system FFmpeg first (most reliable)
+    local_dir = Path.home() / ".dr_cdj" / "bin"
+    local_ffmpeg = local_dir / "ffmpeg"
+    local_ffprobe = local_dir / "ffprobe"
+    
+    # 1. Check previously downloaded FFmpeg (~/.dr_cdj/bin/)
+    if local_ffmpeg.exists() and local_ffprobe.exists():
+        if verify_ffmpeg(str(local_ffmpeg)) and verify_ffmpeg(str(local_ffprobe)):
+            os.environ["DR_CDJ_FFMPEG_PATH"] = str(local_ffmpeg)
+            os.environ["DR_CDJ_FFPROBE_PATH"] = str(local_ffprobe)
+            logger.info(f"✅ Using downloaded FFmpeg from ~/.dr_cdj/bin/")
+            return True
+    
+    # 2. Try system FFmpeg
     system_ffmpeg = shutil.which("ffmpeg")
     system_ffprobe = shutil.which("ffprobe")
     
@@ -182,7 +192,7 @@ def setup_ffmpeg() -> bool:
             logger.info(f"✅ Using system FFmpeg")
             return True
     
-    # 2. Download FFmpeg (works reliably on all macOS systems)
+    # 3. Download FFmpeg
     logger.info("Downloading FFmpeg...")
     return download_ffmpeg_fallback()
 

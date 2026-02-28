@@ -23,6 +23,11 @@ mkdir -p "${TMP_DIR}/${APP_NAME}"
 # Copy app
 cp -R "dist/${APP_NAME}.app" "${TMP_DIR}/${APP_NAME}/"
 
+# Ensure FFmpeg binaries inside the bundle are executable
+find "${TMP_DIR}/${APP_NAME}/${APP_NAME}.app" \( -name "ffmpeg" -o -name "ffprobe" \) | while read -r f; do
+    [ -f "$f" ] && chmod +x "$f"
+done
+
 # Create link to Applications
 ln -s /Applications "${TMP_DIR}/${APP_NAME}/Applications"
 

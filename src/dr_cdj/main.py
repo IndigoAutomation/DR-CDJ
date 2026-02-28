@@ -157,43 +157,55 @@ def copy_bundled_to_local():
 def setup_ffmpeg() -> bool:
     """
     Setup FFmpeg for the application.
-    
+
     Priority:
-    1. Previously downloaded FFmpeg (~/.dr_cdj/bin/) - fastest
-    2. System FFmpeg (from PATH)
-    3. Download FFmpeg (works on clean macOS)
-    
+    1. Bundled FFmpeg (copied to ~/.dr_cdj/bin/ on first launch) - standalone, no internet
+    2. Previously cached FFmpeg (~/.dr_cdj/bin/) - fast path on subsequent launches
+    3. System FFmpeg (from PATH)
+    4. Download FFmpeg (last resort, requires internet)
+
     Returns:
         True if FFmpeg is ready to use
     """
     from dr_cdj.utils import verify_ffmpeg
     import shutil
-    
+
     local_dir = Path.home() / ".dr_cdj" / "bin"
     local_ffmpeg = local_dir / "ffmpeg"
     local_ffprobe = local_dir / "ffprobe"
-    
-    # 1. Check previously downloaded FFmpeg (~/.dr_cdj/bin/)
+
+    # 0. If not cached locally yet, try to extract from the app bundle first
+    if not (local_ffmpeg.exists() and local_ffprobe.exists()):
+        logger.info("No local FFmpeg cache — checking app bundle...")
+        ff, fp = copy_bundled_to_local()
+        if ff and fp:
+            logger.info(f"✅ Bundled FFmpeg extracted to ~/.dr_cdj/bin/")
+
+    # 1. Use local cache (~/.dr_cdj/bin/) — covers both bundled-copy and previous download.
+    #    Use os.access(X_OK) rather than verify_ffmpeg() here: launching an x86_64 binary
+    #    via Rosetta 2 on first run can take >5 s (JIT compile), which exceeds the
+    #    verify_ffmpeg timeout and causes an unnecessary fallback to system FFmpeg.
+    #    The files are trusted (extracted from our own bundle or previously verified).
     if local_ffmpeg.exists() and local_ffprobe.exists():
-        if verify_ffmpeg(str(local_ffmpeg)) and verify_ffmpeg(str(local_ffprobe)):
+        if os.access(str(local_ffmpeg), os.X_OK) and os.access(str(local_ffprobe), os.X_OK):
             os.environ["DR_CDJ_FFMPEG_PATH"] = str(local_ffmpeg)
             os.environ["DR_CDJ_FFPROBE_PATH"] = str(local_ffprobe)
-            logger.info(f"✅ Using downloaded FFmpeg from ~/.dr_cdj/bin/")
+            logger.info("✅ Using FFmpeg from ~/.dr_cdj/bin/")
             return True
-    
+
     # 2. Try system FFmpeg
     system_ffmpeg = shutil.which("ffmpeg")
     system_ffprobe = shutil.which("ffprobe")
-    
+
     if system_ffmpeg and system_ffprobe:
         if verify_ffmpeg(system_ffmpeg) and verify_ffmpeg(system_ffprobe):
             os.environ["DR_CDJ_FFMPEG_PATH"] = system_ffmpeg
             os.environ["DR_CDJ_FFPROBE_PATH"] = system_ffprobe
-            logger.info(f"✅ Using system FFmpeg")
+            logger.info("✅ Using system FFmpeg")
             return True
-    
-    # 3. Download FFmpeg
-    logger.info("Downloading FFmpeg...")
+
+    # 3. Download FFmpeg (last resort)
+    logger.info("No FFmpeg found locally or in bundle — downloading...")
     return download_ffmpeg_fallback()
 
 

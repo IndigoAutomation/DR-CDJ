@@ -13,13 +13,16 @@ import tarfile
 import platform
 from pathlib import Path
 
-# FFmpeg static builds from https://github.com/eugeneware/ffmpeg-static
+# FFmpeg static builds from evermeet.cx (same source as the runtime downloader)
+# These are x86_64 binaries that run natively on Intel and via Rosetta 2 on Apple Silicon.
+# eugeneware/ffmpeg-static arm64 builds are incompatible with macOS 14+.
 FFMPEG_URLS = {
-    "Darwin-x86_64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/ffmpeg-darwin-x64",
-    "Darwin-arm64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/ffmpeg-darwin-arm64",
-    "Darwin-FFPROBE-x86_64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/ffprobe-darwin-x64",
-    "Darwin-FFPROBE-arm64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/ffprobe-darwin-arm64",
+    "Darwin-x86_64": "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
+    "Darwin-arm64":  "https://evermeet.cx/ffmpeg/ffmpeg-6.1.1.zip",
+    "Darwin-FFPROBE-x86_64": "https://evermeet.cx/ffmpeg/ffprobe-6.1.1.zip",
+    "Darwin-FFPROBE-arm64":  "https://evermeet.cx/ffmpeg/ffprobe-6.1.1.zip",
 }
+# These are zip archives; the binary inside is extracted automatically below.
 
 
 def get_system_info():
@@ -113,30 +116,41 @@ def download_ffmpeg_for_build():
         return False
     
     success = True
-    
+
+    def fetch_binary(url: str, dest: Path, name: str) -> bool:
+        """Download a binary, handling both raw files and .zip archives."""
+        if dest.exists():
+            print(f"✅ {name} already exists: {dest}")
+            return True
+
+        if url.endswith(".zip"):
+            import tempfile, zipfile as zf
+            tmp = Path(tempfile.mktemp(suffix=".zip"))
+            if not download_file(url, tmp):
+                return False
+            print(f"  Extracting {name} from zip...")
+            with zf.ZipFile(tmp, "r") as z:
+                # evermeet.cx zips contain a single binary named after the tool
+                members = [m for m in z.namelist() if not m.startswith("__MACOSX")]
+                if not members:
+                    print(f"❌ Empty zip for {name}")
+                    tmp.unlink(missing_ok=True)
+                    return False
+                binary_name = members[0]
+                data = z.read(binary_name)
+                dest.write_bytes(data)
+            tmp.unlink(missing_ok=True)
+        else:
+            if not download_file(url, dest):
+                return False
+
+        make_executable(dest)
+        return True
+
     # Download ffmpeg
-    ffmpeg_url = FFMPEG_URLS[ffmpeg_key]
-    ffmpeg_dest = bin_dir / "ffmpeg"
-    
-    if ffmpeg_dest.exists():
-        print(f"✅ FFmpeg already exists: {ffmpeg_dest}")
-    else:
-        if download_file(ffmpeg_url, ffmpeg_dest):
-            make_executable(ffmpeg_dest)
-        else:
-            success = False
-    
+    success = fetch_binary(FFMPEG_URLS[ffmpeg_key],  bin_dir / "ffmpeg",  "ffmpeg")  and success
     # Download ffprobe
-    ffprobe_url = FFMPEG_URLS[ffprobe_key]
-    ffprobe_dest = bin_dir / "ffprobe"
-    
-    if ffprobe_dest.exists():
-        print(f"✅ FFprobe already exists: {ffprobe_dest}")
-    else:
-        if download_file(ffprobe_url, ffprobe_dest):
-            make_executable(ffprobe_dest)
-        else:
-            success = False
+    success = fetch_binary(FFMPEG_URLS[ffprobe_key], bin_dir / "ffprobe", "ffprobe") and success
     
     # Verify binaries work
     if success:

@@ -26,27 +26,8 @@ cp -R "dist/${APP_NAME}.app" "${TMP_DIR}/${APP_NAME}/"
 # Create link to Applications
 ln -s /Applications "${TMP_DIR}/${APP_NAME}/Applications"
 
-# Create README
-cat > "${TMP_DIR}/${APP_NAME}/README.txt" << 'EOF'
-Dr. CDJ v1.0.1
-================
-
-Thank you for downloading Dr. CDJ!
-
-INSTALLATION:
-1. Drag Dr-CDJ.app to the Applications folder
-2. Double-click Dr-CDJ.app to launch
-
-REQUIREMENTS:
-- macOS 12.0 or later
-- FFmpeg (optional, will be auto-downloaded if not present)
-
-To manually install FFmpeg:
-   brew install ffmpeg
-
-SUPPORT:
-https://github.com/IndigoAutomation/DR-CDJ/issues
-EOF
+# Copy install guide
+cp "INSTALL.html" "${TMP_DIR}/${APP_NAME}/INSTALL.html"
 
 # Create DMG
 echo "📦 Creating ${DMG_NAME}..."

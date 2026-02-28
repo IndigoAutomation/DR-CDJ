@@ -1,227 +1,321 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. CDJ - Installazione</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f11 0%, #1a1a1f 100%);
-            color: #fafafa;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 600px;
-            background: #1a1a1f;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 1px solid #3f3f46;
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .logo-icon {
-            font-size: 64px;
-            margin-bottom: 10px;
-        }
-        
-        .logo h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #6366f1;
-            margin-bottom: 5px;
-        }
-        
-        .logo p {
-            color: #a1a1aa;
-            font-size: 14px;
-        }
-        
-        .steps {
-            margin: 30px 0;
-        }
-        
-        .step {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #25252d;
-            border-radius: 12px;
-            border-left: 3px solid #6366f1;
-        }
-        
-        .step-number {
-            width: 32px;
-            height: 32px;
-            background: #6366f1;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        
-        .step-content h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: #fafafa;
-        }
-        
-        .step-content p {
-            font-size: 14px;
-            color: #a1a1aa;
-            line-height: 1.5;
-        }
-        
-        .arrow {
-            text-align: center;
-            font-size: 24px;
-            margin: 10px 0;
-            color: #6366f1;
-        }
-        
-        .warning {
-            background: #78350f;
-            border: 1px solid #f59e0b;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 25px;
-        }
-        
-        .warning h3 {
-            color: #f59e0b;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .warning p {
-            font-size: 13px;
-            color: #fcd34d;
-            line-height: 1.5;
-        }
-        
-        .warning code {
-            background: #451a03;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: "SF Mono", Monaco, monospace;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #3f3f46;
-        }
-        
-        .footer p {
-            font-size: 12px;
-            color: #71717a;
-        }
-        
-        .footer a {
-            color: #6366f1;
-            text-decoration: none;
-        }
-        
-        .drag-hint {
-            text-align: center;
-            background: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .drag-hint p {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-        
-        .drag-hint span {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. CDJ — Installazione</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#090909;--bg-elevated:#101015;--bg-card:#18181f;
+  --coral:#d94f4f;--turquoise:#33a89f;--sunshine:#c9a820;--lavender:#8b50d4;
+  --mint:#3db88a;--sky:#3080d8;--peach:#c96418;
+  --text:#f0f0f0;--text-dim:#8a8a94;--text-muted:#5a5a64;
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  overflow-x:hidden;min-height:100vh;line-height:1.5;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:3rem 1.5rem;
+}
+
+/* ===== MESH BACKGROUND ===== */
+.mesh-bg{
+  position:fixed;inset:0;z-index:0;overflow:hidden;
+  background:var(--bg);
+}
+.mesh-blob{
+  position:absolute;border-radius:50%;filter:blur(80px);
+  animation:blobFloat 20s ease-in-out infinite;
+}
+.mesh-blob:nth-child(1){
+  width:500px;height:500px;background:var(--coral);
+  top:-150px;left:-100px;animation-delay:0s;opacity:0.18;
+}
+.mesh-blob:nth-child(2){
+  width:400px;height:400px;background:var(--turquoise);
+  top:40%;right:-120px;animation-delay:-5s;opacity:0.14;
+}
+.mesh-blob:nth-child(3){
+  width:350px;height:350px;background:var(--lavender);
+  bottom:-80px;left:25%;animation-delay:-10s;opacity:0.12;
+}
+@keyframes blobFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(40px,-25px) scale(1.08)}
+  50%{transform:translate(-25px,40px) scale(0.95)}
+  75%{transform:translate(30px,20px) scale(1.04)}
+}
+
+/* ===== MAIN CARD ===== */
+.card{
+  position:relative;z-index:1;
+  width:100%;max-width:560px;
+  background:var(--bg-card);
+  border-radius:28px;
+  border:1px solid rgba(255,255,255,0.07);
+  box-shadow:0 30px 90px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03) inset;
+  overflow:hidden;
+  opacity:0;animation:fadeUp 0.7s 0.1s forwards;
+}
+
+/* ===== HEADER STRIPE ===== */
+.card-header{
+  padding:2rem 2rem 1.5rem;
+  background:linear-gradient(135deg,rgba(217,79,79,0.12),rgba(51,168,159,0.08));
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  text-align:center;
+  position:relative;
+}
+.window-dots{
+  position:absolute;top:1rem;left:1.25rem;
+  display:flex;gap:0.4rem;
+}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot:nth-child(1){background:var(--coral)}
+.dot:nth-child(2){background:var(--sunshine)}
+.dot:nth-child(3){background:var(--mint)}
+
+.app-logo{
+  width:68px;height:68px;border-radius:22px;
+  background:linear-gradient(135deg,var(--coral),var(--peach));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin:0.5rem auto 1rem;
+  box-shadow:0 8px 30px rgba(180,60,60,0.4);
+  animation:logoBounce 3s ease-in-out infinite;
+}
+@keyframes logoBounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+.app-title{
+  font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;
+  font-family:'Space Mono',monospace;
+  background:linear-gradient(135deg,var(--text) 0%,var(--coral) 60%,var(--peach) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.app-subtitle{
+  font-size:0.82rem;color:var(--text-muted);margin-top:0.35rem;
+  font-weight:500;letter-spacing:0.05em;text-transform:uppercase;
+}
+
+/* ===== DROP ZONE VISUAL ===== */
+.drop-zone{
+  margin:1.5rem 2rem;
+  border:1.5px dashed rgba(255,255,255,0.12);
+  border-radius:18px;
+  padding:1.25rem 1rem;
+  text-align:center;
+  background:rgba(255,255,255,0.02);
+  position:relative;overflow:hidden;
+}
+.drop-zone::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(61,184,138,0.06),rgba(51,168,159,0.04));
+  border-radius:18px;
+}
+.drop-arrow{
+  font-size:2rem;
+  animation:arrowBounce 1.5s ease-in-out infinite;
+  display:block;margin-bottom:0.5rem;
+  position:relative;
+}
+@keyframes arrowBounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(6px)}
+}
+.drop-zone p{
+  font-size:0.95rem;font-weight:700;color:var(--mint);
+  position:relative;
+}
+.drop-zone span{
+  font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;display:block;
+  position:relative;
+}
+
+/* ===== STEPS ===== */
+.steps{padding:0 2rem 0.5rem}
+
+.step{
+  display:flex;align-items:flex-start;gap:1rem;
+  margin-bottom:0.85rem;padding:1rem 1.1rem;
+  background:rgba(255,255,255,0.03);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.05);
+  transition:all 0.3s var(--ease-smooth);
+  position:relative;overflow:hidden;
+}
+.step::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+  border-radius:3px 0 0 3px;
+}
+.step:nth-child(1)::before{background:var(--coral)}
+.step:nth-child(2)::before{background:var(--turquoise)}
+.step:nth-child(3)::before{background:var(--mint)}
+.step:hover{background:rgba(255,255,255,0.05);transform:translateX(3px)}
+
+.step-num{
+  width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.9rem;flex-shrink:0;
+  font-family:'Space Mono',monospace;
+}
+.step:nth-child(1) .step-num{background:rgba(217,79,79,0.15);color:var(--coral)}
+.step:nth-child(2) .step-num{background:rgba(51,168,159,0.15);color:var(--turquoise)}
+.step:nth-child(3) .step-num{background:rgba(61,184,138,0.15);color:var(--mint)}
+
+.step-body h3{
+  font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:0.2rem;
+}
+.step-body p{
+  font-size:0.8rem;color:var(--text-muted);line-height:1.5;
+}
+
+/* ===== WARNING ===== */
+.warning{
+  margin:0.5rem 2rem 1.5rem;
+  background:rgba(201,168,32,0.08);
+  border:1px solid rgba(201,168,32,0.2);
+  border-radius:16px;
+  padding:1.1rem 1.25rem;
+}
+.warning-title{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.8rem;font-weight:700;color:var(--sunshine);
+  margin-bottom:0.6rem;letter-spacing:0.04em;text-transform:uppercase;
+}
+.warning p{
+  font-size:0.78rem;color:rgba(201,168,32,0.8);line-height:1.6;
+}
+.warning em{color:var(--text-muted)}
+.warning code{
+  display:inline-block;margin-top:0.5rem;
+  background:rgba(0,0,0,0.35);
+  padding:0.3rem 0.65rem;border-radius:8px;
+  font-family:'Space Mono',monospace;
+  font-size:0.72rem;color:var(--sunshine);
+  word-break:break-all;border:1px solid rgba(201,168,32,0.15);
+}
+
+/* ===== FOOTER ===== */
+.card-footer{
+  padding:1rem 2rem 1.5rem;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;justify-content:center;align-items:center;gap:1.5rem;
+  flex-wrap:wrap;
+}
+.footer-badge{
+  font-size:0.75rem;color:var(--text-muted);font-weight:500;
+}
+.footer-link{
+  font-size:0.75rem;color:var(--turquoise);text-decoration:none;font-weight:600;
+  transition:opacity 0.2s;
+}
+.footer-link:hover{opacity:0.75}
+.footer-dot{color:var(--text-muted);font-size:0.6rem}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .card{opacity:1}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <div class="logo-icon">◉</div>
-            <h1>Dr. CDJ</h1>
-            <p>Audio Compatibility Checker per Pioneer CDJ</p>
-        </div>
-        
-        <div class="drag-hint">
-            <p>⬇️ Trascina Dr-CDJ.app su Applications ⬇️</p>
-            <span>Drag Dr-CDJ.app to the Applications folder</span>
-        </div>
-        
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <h3>Trascina l'app in Applications</h3>
-                    <p>Drag the Dr-CDJ.app icon into your Applications folder</p>
-                </div>
-            </div>
-            
-            <div class="arrow">⬇</div>
-            
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <h3>Espelli il DMG</h3>
-                    <p>Eject this DMG by dragging it to the Trash</p>
-                </div>
-            </div>
-            
-            <div class="arrow">⬇</div>
-            
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <h3>Avvia Dr. CDJ</h3>
-                    <p>Open Dr. CDJ from Applications or Spotlight</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="warning">
-            <h3>⚠️ Prima apertura / First Launch</h3>
-            <p>
-                Se macOS mostra un avviso di sicurezza, vai in <strong>Preferenze di Sistema → Sicurezza e Privacy</strong> e clicca <strong>"Apri comunque"</strong>.<br><br>
-                <em>If macOS shows a security warning, go to <strong>System Preferences → Security & Privacy</strong> and click <strong>"Open Anyway"</strong>.</em><br><br>
-                Oppure da terminale / Or run in Terminal:<br>
-                <code>xattr -rd com.apple.quarantine /Applications/Dr-CDJ.app</code>
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p>Versione 1.0.1 | <a href="https://github.com/IndigoAutomation/Dr-CDJ">GitHub</a> | <a href="https://github.com/IndigoAutomation/Dr-CDJ/issues">Supporto</a></p>
-        </div>
+
+<div class="mesh-bg">
+  <div class="mesh-blob"></div>
+  <div class="mesh-blob"></div>
+  <div class="mesh-blob"></div>
+</div>
+
+<div class="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="window-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
+    <div class="app-logo">◉</div>
+    <div class="app-title">Dr. CDJ</div>
+    <div class="app-subtitle">Audio Compatibility Checker · v1.0.1</div>
+  </div>
+
+  <!-- Drop zone visual -->
+  <div class="drop-zone">
+    <span class="drop-arrow">↓</span>
+    <p>Trascina Dr-CDJ.app su Applications</p>
+    <span>Drag Dr-CDJ.app to the Applications folder</span>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <h3>Trascina l'app in Applications</h3>
+        <p>Drag the Dr-CDJ.app icon into your Applications folder on the left.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <h3>Espelli il disco DMG</h3>
+        <p>Eject this disk image by dragging it to the Trash, or right-clicking → Eject.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <h3>Avvia Dr. CDJ</h3>
+        <p>Open Dr. CDJ from Applications or search it with Spotlight (⌘ Space).</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Warning -->
+  <div class="warning">
+    <div class="warning-title">
+      <span>⚠</span> Prima apertura · First Launch
+    </div>
+    <p>
+      Se macOS mostra un avviso di sicurezza, vai in
+      <strong style="color:var(--sunshine)">Impostazioni → Privacy e Sicurezza</strong>
+      e clicca <strong style="color:var(--sunshine)">"Apri comunque"</strong>.<br>
+      <em>If macOS shows a security warning, go to System Settings → Privacy & Security and click "Open Anyway".</em>
+      <code>xattr -rd com.apple.quarantine /Applications/Dr-CDJ.app</code>
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <span class="footer-badge">Made for Mac · Free & Open Source</span>
+    <span class="footer-dot">·</span>
+    <a href="https://github.com/IndigoAutomation/Dr-CDJ" class="footer-link">GitHub</a>
+    <span class="footer-dot">·</span>
+    <a href="https://github.com/IndigoAutomation/Dr-CDJ/issues" class="footer-link">Supporto</a>
+  </div>
+
+</div>
+
 </body>
 </html>

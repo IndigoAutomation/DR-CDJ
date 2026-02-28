@@ -29,7 +29,7 @@ MANIFEST
 # PyInstaller
 *.manifest
 *.spec
-!CDJ-Check.spec
+!Dr-CDJ.spec
 
 # Installer logs
 pip-log.txt
@@ -70,11 +70,18 @@ venv.bak/
 Thumbs.db
 
 # Project specific
+dist/Dr-CDJ/
+dist/Dr-CDJ.app/
 dist/CDJ-Check/
 dist/CDJ-Check.app/
+build/Dr-CDJ/
 build/CDJ-Check/
 *.dmg
 
 # Keep these
 !assets/
 !CDJ-Check.icns
+
+# FFmpeg binaries (downloaded during build)
+src/dr_cdj/bin/
+!src/dr_cdj/bin/.gitkeep

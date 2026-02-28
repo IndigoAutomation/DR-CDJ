@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Script di build per CDJ-Check usando PyInstaller."""
+"""
+Build script for Dr. CDJ using PyInstaller.
+Automatically downloads and bundles FFmpeg for standalone operation.
+"""
 
 import platform
 import shutil
@@ -9,128 +12,156 @@ from pathlib import Path
 
 
 def check_pyinstaller():
-    """Verifica che PyInstaller sia installato."""
+    """Verify PyInstaller is installed."""
     if not shutil.which("pyinstaller"):
-        print("❌ PyInstaller non trovato.")
-        print("Installa con: pip install pyinstaller")
+        print("❌ PyInstaller not found.")
+        print("Install with: pip install pyinstaller")
         sys.exit(1)
+    print("✅ PyInstaller found")
 
 
-def get_ffmpeg_paths():
-    """Trova ffmpeg e ffprobe."""
-    system = platform.system()
+def download_ffmpeg():
+    """Download FFmpeg binaries for bundling."""
+    script_path = Path(__file__).parent / "scripts" / "download-ffmpeg.py"
     
-    ffmpeg = shutil.which("ffmpeg")
-    ffprobe = shutil.which("ffprobe")
+    if not script_path.exists():
+        print(f"❌ Download script not found: {script_path}")
+        return False
     
-    if not ffmpeg or not ffprobe:
-        print("❌ FFmpeg o ffprobe non trovati nel PATH.")
-        print("Installa FFmpeg prima di continuare.")
-        sys.exit(1)
+    print("\n📦 Downloading FFmpeg for bundling...")
+    result = subprocess.run([sys.executable, str(script_path)])
     
-    return ffmpeg, ffprobe
+    if result.returncode != 0:
+        print("⚠️  FFmpeg download failed, will rely on runtime auto-download")
+        return False
+    
+    return True
+
+
+def clean_dist():
+    """Clean previous build artifacts."""
+    print("\n🧹 Cleaning previous builds...")
+    
+    dirs_to_clean = ["dist", "build"]
+    for dir_name in dirs_to_clean:
+        dir_path = Path(dir_name)
+        if dir_path.exists():
+            shutil.rmtree(dir_path)
+            print(f"   Removed {dir_name}/")
+    
+    # Remove .spec files except Dr-CDJ.spec
+    for spec in Path(".").glob("*.spec"):
+        if spec.name != "Dr-CDJ.spec":
+            spec.unlink()
+            print(f"   Removed {spec.name}")
 
 
 def build_macos():
-    """Build per macOS (.app bundle)."""
-    print("🍎 Build per macOS...")
+    """Build for macOS (.app bundle)."""
+    print("\n🍎 Building for macOS...")
     
-    ffmpeg, ffprobe = get_ffmpeg_paths()
+    # Download FFmpeg first
+    download_ffmpeg()
     
-    cmd = [
-        "pyinstaller",
-        "--name", "CDJ-Check",
-        "--windowed",
-        "--onefile",
-        "--clean",
-        "--noconfirm",
-        # Aggiungi ffmpeg e ffprobe come dati binari
-        "--add-binary", f"{ffmpeg}:.",
-        "--add-binary", f"{ffprobe}:.",
-        # Hook personalizzato
-        "--additional-hooks-dir", "hooks",
-        # Icona (se esiste)
-        # "--icon", "assets/icon.icns",
-        # Nascondi terminale
-        "--osx-bundle-identifier", "com.cdjcheck.app",
-        "src/dr_cdj/main.py",
-    ]
+    # Use the spec file for building
+    spec_file = Path("Dr-CDJ.spec")
+    if not spec_file.exists():
+        print(f"❌ Spec file not found: {spec_file}")
+        print("Using direct pyinstaller command...")
+        
+        # Fallback to direct command
+        cmd = [
+            "pyinstaller",
+            "--name", "Dr-CDJ",
+            "--windowed",
+            "--onedir",
+            "--clean",
+            "--noconfirm",
+            "--osx-bundle-identifier", "com.dr-cdj.app",
+            "--add-data", "src/dr_cdj/bin:bin",
+            "src/dr_cdj/main.py",
+        ]
+    else:
+        cmd = ["pyinstaller", str(spec_file), "--clean", "--noconfirm"]
     
-    print(f"Eseguendo: {' '.join(cmd)}")
+    print(f"\nRunning: {' '.join(cmd)}")
     result = subprocess.run(cmd)
     
     if result.returncode != 0:
-        print("❌ Build fallito!")
+        print("\n❌ Build failed!")
         sys.exit(1)
     
-    print("✅ Build completato!")
-    print("Output: dist/CDJ-Check.app")
+    print("\n✅ Build completed!")
+    
+    # Report app size
+    app_path = Path("dist/Dr-CDJ.app")
+    if app_path.exists():
+        size = sum(f.stat().st_size for f in app_path.rglob('*') if f.is_file())
+        size_mb = size / (1024 * 1024)
+        print(f"📦 App bundle size: {size_mb:.1f} MB")
+        print(f"   Location: {app_path.absolute()}")
 
 
 def build_windows():
-    """Build per Windows (.exe)."""
-    print("🪟 Build per Windows...")
-    
-    ffmpeg, ffprobe = get_ffmpeg_paths()
+    """Build for Windows (.exe)."""
+    print("\n🪟 Building for Windows...")
     
     cmd = [
         "pyinstaller",
-        "--name", "CDJ-Check",
+        "--name", "Dr-CDJ",
         "--windowed",
-        "--onefile",
+        "--onedir",
         "--clean",
         "--noconfirm",
-        "--add-binary", f"{ffmpeg};.",
-        "--add-binary", f"{ffprobe};.",
-        "--additional-hooks-dir", "hooks",
-        # "--icon", "assets/icon.ico",
+        "--add-data", "src/dr_cdj/bin;bin",
         "src/dr_cdj/main.py",
     ]
     
-    print(f"Eseguendo: {' '.join(cmd)}")
+    print(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd)
     
     if result.returncode != 0:
-        print("❌ Build fallito!")
+        print("\n❌ Build failed!")
         sys.exit(1)
     
-    print("✅ Build completato!")
-    print("Output: dist/CDJ-Check.exe")
+    print("\n✅ Build completed!")
+    print("Output: dist/Dr-CDJ/")
 
 
 def build_linux():
-    """Build per Linux (eseguibile)."""
-    print("🐧 Build per Linux...")
-    
-    ffmpeg, ffprobe = get_ffmpeg_paths()
+    """Build for Linux (executable)."""
+    print("\n🐧 Building for Linux...")
     
     cmd = [
         "pyinstaller",
-        "--name", "CDJ-Check",
+        "--name", "Dr-CDJ",
         "--windowed",
-        "--onefile",
+        "--onedir",
         "--clean",
         "--noconfirm",
-        "--add-binary", f"{ffmpeg}:.",
-        "--add-binary", f"{ffprobe}:.",
-        "--additional-hooks-dir", "hooks",
+        "--add-data", "src/dr_cdj/bin:bin",
         "src/dr_cdj/main.py",
     ]
     
-    print(f"Eseguendo: {' '.join(cmd)}")
+    print(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd)
     
     if result.returncode != 0:
-        print("❌ Build fallito!")
+        print("\n❌ Build failed!")
         sys.exit(1)
     
-    print("✅ Build completato!")
-    print("Output: dist/CDJ-Check")
+    print("\n✅ Build completed!")
+    print("Output: dist/Dr-CDJ/")
 
 
 def main():
     """Entry point."""
+    print("=" * 50)
+    print("🔧 Dr. CDJ Build System")
+    print("=" * 50)
+    
     check_pyinstaller()
+    clean_dist()
     
     system = platform.system()
     
@@ -141,8 +172,12 @@ def main():
     elif system == "Linux":
         build_linux()
     else:
-        print(f"❌ Sistema operativo non supportato: {system}")
+        print(f"❌ Unsupported operating system: {system}")
         sys.exit(1)
+    
+    print("\n" + "=" * 50)
+    print("🎉 Build completed successfully!")
+    print("=" * 50)
 
 
 if __name__ == "__main__":

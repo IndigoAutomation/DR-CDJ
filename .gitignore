@@ -76,7 +76,11 @@ dist/CDJ-Check/
 dist/CDJ-Check.app/
 build/Dr-CDJ/
 build/CDJ-Check/
+build */
 *.dmg
+CDJ-Check.iconset/
+firebase-debug.log
+docs/internal/
 # Keep these
 !assets/
 !CDJ-Check.icns

@@ -12,7 +12,7 @@
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)]()
 [![FFmpeg](https://img.shields.io/badge/powered%20by-FFmpeg-007808.svg)](https://ffmpeg.org)
 
-[**Download for macOS →**](https://github.com/IndigoAutomation/DR-CDJ/releases/latest)
+[**Download for macOS →**](https://indigoautomation.github.io/DR-CDJ/)
 
 </div>
 

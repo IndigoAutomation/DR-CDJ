@@ -22,9 +22,9 @@ from dr_cdj.converter import AudioConverter, ConversionResult
 
 # Shared style for all convert action buttons
 _CONVERT_BTN_COLORS = {
-    "fg_color": COLORS["compatible"],
-    "hover_color": COLORS["accent_cyan"],
-    "text_color": COLORS["text_inverse"],
+    "fg_color": COLORS["primary"],
+    "hover_color": COLORS["primary_dark"],
+    "text_color": COLORS["text"],
 }
 
 
